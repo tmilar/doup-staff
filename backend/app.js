@@ -5,7 +5,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-
+const logger = require('morgan')
 const db = require('./config/db')
 const googleClient = require('./client/google-client')
 
@@ -16,6 +16,11 @@ app.use(cors({
   origin: /http:\/\/localhost(:\d+)?$/
 }))
 app.use(cookieParser())
+if (app.get('env') === 'production') {
+  app.use(logger('combined'));
+} else {
+  app.use(logger('dev'));
+}
 
 const http = server(app)
 const port = process.env.PORT || 3000
