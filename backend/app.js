@@ -16,6 +16,7 @@ app.use(cors({
   origin: /http:\/\/localhost(:\d+)?$/
 }))
 app.use(cookieParser())
+
 if (app.get('env') === 'production') {
   app.use(logger('combined'));
 } else {
@@ -26,10 +27,13 @@ const http = server(app)
 const port = process.env.PORT || 3000
 
 async function setup() {
-  const {connection: {name}} = await db.connect()
-  console.log(`db connection open: ${name}`)
 
-  const jwtClient = await googleClient.authenticate()
+  const [{connection: {name}}, jwtClient] = await Promise.all([
+    db.connect(),
+    googleClient.authenticate()
+  ])
+
+  console.log(`db connection open: ${name}`)
 
   const upload = require('./routes/upload')(jwtClient)
   const auth = require('./routes/auth')
@@ -43,7 +47,7 @@ async function setup() {
 
 function start() {
   http.listen(port, () => {
-    console.log(`Listening on port ${port}`)
+    console.log(`Listening on port ${port} (${app.get('env')})`)
   })
 }
 
