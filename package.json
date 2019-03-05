@@ -1,0 +1,23 @@
+{
+  "name": "doup-staff",
+  "version": "0.0.1",
+  "description": "Backend service to manage DOUP! staff requirements.",
+  "main": "app.js",
+  "scripts": {
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmilar/doup-staff.git"
+  },
+  "keywords": [
+    "node.js",
+    "google-drive"
+  ],
+  "author": "tmilar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tmilar/doup-staff/issues"
+  },
+  "homepage": "https://github.com/tmilar/doup-staff#readme"
+}
