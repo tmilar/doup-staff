@@ -4,7 +4,7 @@
   "description": "Backend service to manage DOUP! staff requirements.",
   "main": "app.js",
   "scripts": {
-    "test": "ava"
+    "test": "xo && ava"
   },
   "repository": {
     "type": "git",
@@ -15,9 +15,22 @@
     "google-drive"
   ],
   "author": "tmilar",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/tmilar/doup-staff/issues"
   },
-  "homepage": "https://github.com/tmilar/doup-staff#readme"
+  "homepage": "https://github.com/tmilar/doup-staff#readme",
+  "devDependencies": {
+    "ava": "1.3.1",
+    "xo": "0.24.0"
+  },
+  "xo": {
+    "space": true,
+    "semicolon": false,
+    "rules": {
+      "camelcase": "warn",
+      "no-use-extend-native/no-use-extend-native": "warn",
+      "import/no-unassigned-import": "off",
+      "new-cap": 0
+    }
+  }
 }
