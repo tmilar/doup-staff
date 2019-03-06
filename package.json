@@ -4,6 +4,7 @@
   "description": "Backend service to manage DOUP! staff requirements.",
   "main": "app.js",
   "scripts": {
+    "run": "node app.js",
     "test": "xo && ava"
   },
   "repository": {
@@ -32,5 +33,10 @@
       "import/no-unassigned-import": "off",
       "new-cap": 0
     }
+  },
+  "dependencies": {
+    "googleapis": "37.2.0",
+    "opn": "5.4.0",
+    "server-destroy": "1.0.1"
   }
 }
