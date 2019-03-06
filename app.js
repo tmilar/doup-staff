@@ -1,14 +1,27 @@
-const SAMPLE_FILE_URL = './data/marquitos.jpg'
-const fileName = require('path').resolve(__dirname, SAMPLE_FILE_URL)
+const path = require('path')
+require('dotenv').config({path: path.resolve(__dirname, '.env')})
+const config = require('./config')
 const client = require('./client/google-client')
 const upload = require('./service/upload')
 
 async function main() {
+  // First authenticate
   const auth = await client.authenticate()
 
-  // Do a googleapi call
-  console.log('uploading file from path:', fileName)
-  const data = await upload.run({fileName, auth})
+  // Define file data
+  const sampleFileUrl = './data/marquitos.jpg'
+  const filePath = path.resolve(__dirname, sampleFileUrl)
+
+  console.log('uploading file from path:', filePath)
+
+  const fileMetadata = {
+    name: `${new Date().toISOString()}_garkos.jpg`,
+    description: 'foto muy piola',
+    parents: [config.drive.parentFolder]
+  }
+
+  // Upload the file
+  const data = await upload.run({filePath, fileMetadata, auth})
 
   console.log(data)
 }

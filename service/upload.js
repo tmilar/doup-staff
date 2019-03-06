@@ -6,16 +6,18 @@ const drive = google.drive({
   version: 'v3'
 })
 
-async function run({fileName, auth}) {
-  const fileSize = fs.statSync(fileName).size
+async function run({filePath, fileMetadata, auth}) {
+  const fileSize = fs.statSync(filePath).size
+
+  const media = {
+    mimeType: 'image/jpeg',
+    body: fs.createReadStream(filePath)
+  }
+
   const res = await drive.files.create({
     auth,
-    requestBody: {
-      // A requestBody element is required if you want to use multipart
-    },
-    media: {
-      body: fs.createReadStream(fileName)
-    }
+    requestBody: fileMetadata,
+    media
   }, {
     // Use the `onUploadProgress` event from Axios to track the
     // number of bytes uploaded to this point.
