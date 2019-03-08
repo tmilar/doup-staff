@@ -3,8 +3,7 @@ const {drive: {parentFolder}} = require('../config')
 
 class DriveStorage {
   constructor(opts) {
-    // This.drive = google.drive({version: 'v3', auth: opts});
-    this.drive = google.drive(Object.assign(opts, {version: 'v3'}))
+     this.drive = google.drive(Object.assign(opts, {version: 'v3'}))
   }
 
   /**
@@ -26,7 +25,8 @@ class DriveStorage {
     const fileMetadata = {
       name: originalName,
       mimeType,
-      parents: [parentFolder]
+      parents: [parentFolder],
+      description: req.body.comment
     }
 
     this.drive.files.create({

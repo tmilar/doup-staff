@@ -3,11 +3,20 @@ require('dotenv').config({path: path.resolve(__dirname, '.env')})
 
 const {Server: server} = require('http')
 const express = require('express')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+
 const multer = require('multer')
 const multerDriveStorage = require('./lib/drive-storage')
 const googleClient = require('./client/google-client')
 
 const app = express()
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: false}))
+app.use(cors({
+  origin: /http:\/\/localhost(:\d+)?$/
+}))
+
 const http = server(app)
 const port = process.env.PORT || 3000
 
