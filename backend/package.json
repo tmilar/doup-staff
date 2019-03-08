@@ -38,8 +38,6 @@
     "dotenv": "6.2.0",
     "express": "4.16.4",
     "googleapis": "37.2.0",
-    "multer": "1.4.1",
-    "opn": "5.4.0",
-    "server-destroy": "1.0.1"
+    "multer": "1.4.1"
   }
 }
