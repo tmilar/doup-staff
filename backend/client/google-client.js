@@ -3,7 +3,7 @@ const {google} = require('googleapis')
 class GoogleClient {
   /**
    *
-   * @param {string|string[]} scopes - can be specified either as an array or as a single, space-delimited string.
+   * @param {string|string[]} [scopes] - can be specified either as an array or as a single, space-delimited string.
    * @returns {Promise<Compute | JWT | UserRefreshClient>} - the auth entity for future requests
    */
   async authenticate(scopes = ['https://www.googleapis.com/auth/drive.file']) {

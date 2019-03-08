@@ -1,31 +1,35 @@
 const path = require('path')
 require('dotenv').config({path: path.resolve(__dirname, '.env')})
-const config = require('./config')
-const client = require('./client/google-client')
-const upload = require('./service/upload')
 
-async function main() {
-  // First authenticate
-  const auth = await client.authenticate()
+const {Server: server} = require('http')
+const express = require('express')
+const multer = require('multer')
+const multerDriveStorage = require('./lib/drive-storage')
+const googleClient = require('./client/google-client')
 
-  // Define file data
-  const sampleFileUrl = './data/marquitos.jpg'
-  const filePath = path.resolve(__dirname, sampleFileUrl)
+const app = express()
+const http = server(app)
+const port = process.env.PORT || 3000
 
-  console.log('uploading file from path:', filePath)
+async function setup() {
+  const jwtClient = await googleClient.authenticate()
+  const upload = multer({
+    storage: multerDriveStorage({auth: jwtClient})
+  })
 
-  const fileMetadata = {
-    name: `${new Date().toISOString()}_garkos.jpg`,
-    description: 'foto muy piola',
-    parents: [config.drive.parentFolder]
-  }
+  const fieldName = 'my-picture'
 
-  // Upload the file
-  const data = await upload.run({filePath, fileMetadata, auth})
-
-  console.log(data)
+  app.post('/upload', upload.single(fieldName), (req, res) => {
+    res.send('Successfully uploaded file: \n' + JSON.stringify(req.file))
+  })
 }
 
-main()
-  .then(() => console.log('all done!'))
-  .catch(error => console.error('ups...', error))
+function start() {
+  http.listen(port, () => {
+    console.log(`Listening on port ${port}`)
+  })
+}
+
+setup()
+  .then(start)
+  .catch(error => console.error('Unexpected error on app startup:', error))
