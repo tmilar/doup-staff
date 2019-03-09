@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "image-upload-example",
-    "description": "Demonstration of how to upload images from the ImagePicker, using a node backend to upload to S3",
-    "slug": "image-upload-example",
     "sdkVersion": "29.0.0",
+    "name": "DOUP! Staff",
+    "description": "Mobile client for doup-staff application.",
+    "slug": "doup-staff",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
