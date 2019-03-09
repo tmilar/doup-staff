@@ -3,7 +3,7 @@ const {drive: {parentFolder}} = require('../config')
 
 class DriveStorage {
   constructor(opts) {
-     this.drive = google.drive(Object.assign(opts, {version: 'v3'}))
+    this.drive = google.drive(Object.assign(opts, {version: 'v3'}))
   }
 
   /**
@@ -40,9 +40,9 @@ class DriveStorage {
       // Workaround axios' issue of streams incorrect backpressuring, issue: https://github.com/googleapis/google-api-nodejs-client/issues/1107
       maxRedirects: 0
     }
-    ).then(({data: {id: googleId}}) =>
-      cb(null, {googleId})
-    ).catch(error =>
+    ).then(({data: {id: googleId, name: uploadFilename}}) => {
+      cb(null, {googleId, uploadFilename})
+    }).catch(error =>
       cb(error, null)
     )
   }

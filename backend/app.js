@@ -29,10 +29,11 @@ async function setup() {
   const fieldName = 'photo'
 
   app.post('/upload', upload.single(fieldName), (req, res) => {
-    if(!req.file) {
+    if (!req.file) {
       res.status(500).send({error: 'Could not upload the file. '})
       return
     }
+
     console.log(`Successfully uploaded file: ${JSON.stringify(req.file)}`)
     res.json(req.file)
   })
