@@ -22,11 +22,6 @@ export default class Uploader extends Component {
       <View style={styles.container}>
         <StatusBar barStyle="default" />
 
-        <Text
-          style={styles.exampleText}>
-          Example: Upload ImagePicker result
-        </Text>
-
         <Button onPress={this._takePhoto} title="Subir foto" />
 
         {this._maybeRenderImage()}
@@ -64,17 +59,11 @@ export default class Uploader extends Component {
         </View>
 
         <Text
-          onPress={this._copyToClipboard}
           style={styles.maybeRenderImageText}>
-          {image}
+          {'¡Gracias por tu aporte!'}
         </Text>
       </View>
     );
-  };
-
-  _copyToClipboard = () => {
-    Clipboard.setString(this.state.image);
-    alert('Copied image URL to clipboard');
   };
 
   _takePhoto = async () => {
@@ -110,7 +99,7 @@ export default class Uploader extends Component {
         uploadResult = await uploadResponse.json();
 
         this.setState({
-          image: uploadResult.uploadFilename
+          image: pickerResult.uri
         });
       }
     } catch (e) {
@@ -204,5 +193,7 @@ const styles = StyleSheet.create({
   maybeRenderImageText: {
     paddingHorizontal: 10,
     paddingVertical: 10,
+    textAlign: 'center',
+    textAlignVertical: 'center'
   }
 });
