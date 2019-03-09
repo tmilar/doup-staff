@@ -1,9 +1,13 @@
 {
   "expo": {
-    "sdkVersion": "29.0.0",
     "name": "DOUP! Staff",
     "description": "Mobile client for doup-staff application.",
     "slug": "doup-staff",
+    "sdkVersion": "32.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
