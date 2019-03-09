@@ -26,10 +26,15 @@ async function setup() {
     storage: multerDriveStorage({auth: jwtClient})
   })
 
-  const fieldName = 'my-picture'
+  const fieldName = 'photo'
 
   app.post('/upload', upload.single(fieldName), (req, res) => {
-    res.send('Successfully uploaded file: \n' + JSON.stringify(req.file))
+    if(!req.file) {
+      res.status(500).send({error: 'Could not upload the file. '})
+      return
+    }
+    console.log(`Successfully uploaded file: ${JSON.stringify(req.file)}`)
+    res.json(req.file)
   })
 }
 
