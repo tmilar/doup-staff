@@ -29,7 +29,7 @@ const AppStack = createStackNavigator({
     headerTintColor: '#fff',
     headerTitle: <Image
       resizeMode="contain"
-      source={require('../assets/images/logo-doup__green.png')}
+      source={require('../assets/images/logo-doup_green.png')}
       style={{width: 90, left: 10}}
     />,
     headerRight: <Icon.Octicons
