@@ -10,6 +10,12 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/images/icon-doup.png",
+    "splash": {
+      "image": "./assets/images/splash-doup_fullscreen.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#30282a"
+    },
     "primaryColor": "#cccccc",
     "packagerOpts": {
       "assetExts": [
