@@ -25,7 +25,9 @@ async function setup() {
   const jwtClient = await googleClient.authenticate()
 
   const upload = require('./routes/upload')(jwtClient)
+  const auth = require('./routes/auth')
   app.use('/upload', upload)
+  app.use('/auth', auth)
 }
 
 function start() {

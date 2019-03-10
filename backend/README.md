@@ -30,3 +30,26 @@ npm test
 ```
 npm run
 ```
+
+# API
+
+```
+POST /upload
+```
+
+Upload an image to drive.
+
+---
+
+```
+POST /auth/register
+{
+ "username": "jdoe",
+ "email": "me@example.com",
+ "password": "mypassword"
+}
+```
+
+Register a new user account.
+
+---
