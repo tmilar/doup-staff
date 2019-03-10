@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, View, StatusBar} from 'react-native';
 
-import Uploader from './components/Uploader'
+import UploadScreen from './screens/UploadScreen';
 
 export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Uploader/>
+        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+        <UploadScreen/>
       </View>
     );
   }

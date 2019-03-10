@@ -1,15 +1,6 @@
-import React, { Component } from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  Clipboard,
-  Image,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { Constants, ImagePicker, Permissions } from 'expo';
+import React, {Component} from 'react';
+import {Button, Image, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {ImagePicker, Permissions} from 'expo';
 
 export default class Uploader extends Component {
   state = {
@@ -25,21 +16,9 @@ export default class Uploader extends Component {
         <Button onPress={this._takePhoto} title="Subir foto" />
 
         {this._maybeRenderImage()}
-        {this._maybeRenderUploadingOverlay()}
       </View>
     );
   }
-
-  _maybeRenderUploadingOverlay = () => {
-    if (this.state.uploading) {
-      return (
-        <View
-          style={[StyleSheet.absoluteFill, styles.maybeRenderUploading]}>
-          <ActivityIndicator color="#fff" size="large" />
-        </View>
-      );
-    }
-  };
 
   _maybeRenderImage = () => {
     let {
@@ -90,9 +69,7 @@ export default class Uploader extends Component {
     let uploadResponse, uploadResult;
 
     try {
-      this.setState({
-        uploading: true
-      });
+      this.props.onUploadStart()
 
       if (!pickerResult.cancelled) {
         uploadResponse = await uploadImageAsync(pickerResult.uri);
@@ -108,9 +85,7 @@ export default class Uploader extends Component {
       console.log({ e });
       alert(`Error en la subida, por favor intente de nuevo. \n${JSON.stringify(e)}`);
     } finally {
-      this.setState({
-        uploading: false
-      });
+      this.props.onUploadEnd()
     }
   };
 }
@@ -155,18 +130,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     flex: 1,
-    justifyContent: 'center',
-  },
-  exampleText: {
-    fontSize: 20,
-    marginBottom: 20,
-    marginHorizontal: 15,
-    textAlign: 'center',
-  },
-  maybeRenderUploading: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   maybeRenderContainer: {
     borderRadius: 3,
