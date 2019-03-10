@@ -72,7 +72,7 @@ export default class LoginScreen extends Component {
   }
 
   _goToHome = () => {
-    this.props.navigation.navigate('App');
+    this.props.navigation.navigate('App', {username: this.state.username});
   }
 
   _handleKeyBoardToggle = (visible) => {
