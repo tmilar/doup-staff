@@ -4,6 +4,7 @@ const {Server: server} = require('http')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 const db = require('./config/db')
 const googleClient = require('./client/google-client')
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(cors({
   origin: /http:\/\/localhost(:\d+)?$/
 }))
+app.use(cookieParser())
 
 const http = server(app)
 const port = process.env.PORT || 3000
