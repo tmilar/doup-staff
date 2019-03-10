@@ -19,7 +19,14 @@ export default class HomeScreen extends React.Component {
   }
 
   _goToUploadScreen = () => {
-    this.props.navigation.navigate('Upload')
+    this.props.navigation.navigate('Upload', {
+      onFinish: () => {
+        this.setState({
+          isTurnStart: true,
+          isTurnEnd: false
+        })
+      }
+    });
   };
 
   _startTurn = ({report}) => {

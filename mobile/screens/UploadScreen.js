@@ -7,7 +7,7 @@ export default class UploadScreen extends Component {
   constructor() {
     super();
     this.state = {
-      loading: false,
+      loading: false
     }
   }
 
@@ -16,7 +16,7 @@ export default class UploadScreen extends Component {
       return (
         <View
           style={[StyleSheet.absoluteFill, styles.maybeRenderUploading]}>
-          <ActivityIndicator color="#fff" size="large" />
+          <ActivityIndicator color="#fff" size="large"/>
         </View>
       );
     }
@@ -26,11 +26,21 @@ export default class UploadScreen extends Component {
     this.setState((prevState) => ({loading: !prevState.loading}))
   }
 
+  onUploadStart = () => {
+    this.toggleLoading()
+  }
+
+  onUploadEnd = () => {
+    const onFinishCallback = this.props.navigation.getParam('onFinish', () => {})
+    onFinishCallback()
+    this.toggleLoading()
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <View style={{flex: 1, zIndex: 0}}>
-          <Uploader onUploadStart={() => this.toggleLoading()} onUploadEnd={() => this.toggleLoading()}/>
+          <Uploader onUploadStart={this.onUploadStart} onUploadEnd={this.onUploadEnd}/>
         </View>
         {this._maybeRenderUploadingOverlay()}
       </View>
@@ -49,6 +59,6 @@ const styles = StyleSheet.create({
   maybeRenderUploading: {
     zIndex: 9999,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 });
