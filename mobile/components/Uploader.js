@@ -4,8 +4,7 @@ import {ImagePicker, Permissions} from 'expo';
 
 export default class Uploader extends Component {
   state = {
-    image: null,
-    uploading: false,
+    image: null
   };
 
   render() {

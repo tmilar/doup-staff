@@ -1,23 +1,9 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, View, StatusBar} from 'react-native';
 
-import UploadScreen from './screens/UploadScreen';
+import AppNavigator from './navigation/AppNavigator';
 
 export default class App extends Component {
   render() {
-    return (
-      <View style={styles.container}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-        <UploadScreen/>
-      </View>
-    );
+    return <AppNavigator/>
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  }
-});

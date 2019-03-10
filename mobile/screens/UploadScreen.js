@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, Dimensions, StyleSheet, View} from 'react-native';
-import {Constants} from 'expo';
 
 import Uploader from '../components/Uploader';
 
@@ -43,16 +42,12 @@ export default class UploadScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     height: Dimensions.get('window').height,
-    padding: 15,
     display: 'flex',
     alignItems: 'center',
-    width: '100%',
-    paddingTop: 50,
-    marginTop: Constants.statusBarHeight
+    width: '100%'
   },
   maybeRenderUploading: {
     zIndex: 9999,
-    // alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
   },
