@@ -1,11 +1,21 @@
 import React from 'react';
-import {Alert, Button, StyleSheet, View, Text} from 'react-native';
+import {Alert, Button, StyleSheet, View, Text, AsyncStorage} from 'react-native';
 
 export default class HomeScreen extends React.Component {
 
   state = {
     isTurnStart: true,
-    isTurnEnd: false
+    isTurnEnd: false,
+    username: ''
+  }
+
+
+  async componentWillMount() {
+    const profile = await AsyncStorage.getItem('userProfile')
+    if(profile) {
+      const {username} = JSON.parse(profile)
+      this.setState({username})
+    }
   }
 
   _goToUploadScreen = () => {
@@ -13,12 +23,12 @@ export default class HomeScreen extends React.Component {
   };
 
   _startTurn = ({report}) => {
-    if(report) {
+    if (report) {
       // TODO send report to API for notification
       // TODO ask for pic upload or write more details?
-      Alert.alert("Gracias", "Gracias por notificarnos, con esto podremos verificar qué sucedió y tomar medidas para que no se repita nuevamente.")
+      Alert.alert('Gracias', 'Gracias por notificarnos, con esto podremos verificar qué sucedió y tomar medidas para que no se repita nuevamente.')
     } else {
-      Alert.alert("Gracias", "Qué bueno que esté todo en condiciones!")
+      Alert.alert('Gracias', 'Qué bueno que esté todo en condiciones!')
     }
 
     this.setState({
@@ -42,11 +52,22 @@ export default class HomeScreen extends React.Component {
     );
   }
 
+  _maybeShowWelcomeMessage = () => {
+    if (this.state.isTurnStart) {
+      const message = `Hola${this.state.username ? `, ${this.state.username}` : ''}!`
+      return (
+        <Text style={styles.welcomeMessage}>{message}</Text>
+      )
+    }
+  }
+
   _maybeShowTurnStartButton = () => {
     if (this.state.isTurnStart) {
       return (
-        <View style={{marginBottom: 20}}>
-          <Button title="Comenzar Turno" onPress={this._reviewPreviousTurn}/>
+        <View>
+          <View style={styles.actionButton}>
+            <Button title="Comenzar Turno" onPress={this._reviewPreviousTurn}/>
+          </View>
         </View>
       )
     }
@@ -55,7 +76,7 @@ export default class HomeScreen extends React.Component {
   _maybeShowTurnEndButton = () => {
     if (this.state.isTurnEnd) {
       return (
-        <View style={{marginBottom: 20}}>
+        <View style={styles.actionButton}>
           <Button title="Finalizar Turno" onPress={this._goToUploadScreen}/>
         </View>
       )
@@ -63,10 +84,9 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
-    const username = this.props.navigation.getParam('username')
     return (
       <View style={styles.container}>
-        <Text style={{fontSize: 20, marginBottom: 40}}>{`Hola${username ? `, ${username}` : ''}!`}</Text>
+        {this._maybeShowWelcomeMessage()}
         {this._maybeShowTurnStartButton()}
         {this._maybeShowTurnEndButton()}
       </View>
@@ -80,5 +100,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  welcomeMessage: {
+    fontSize: 20,
+    marginBottom: 40
+  },
+  actionButton: {
+    marginBottom: 20
   }
 });

@@ -25,6 +25,7 @@ export default class LoginScreen extends Component {
 
   _signInAsync = async () => {
     //TODO call API to get a good userToken
+    await AsyncStorage.setItem('userProfile', JSON.stringify({username: this.state.username}));
     await AsyncStorage.setItem('userToken', 'abc');
   };
 
