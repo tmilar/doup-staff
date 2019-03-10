@@ -1,11 +1,11 @@
 const path = require('path')
 require('dotenv').config({path: path.resolve(__dirname, '.env')})
-
 const {Server: server} = require('http')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
+const db = require('./config/db')
 const googleClient = require('./client/google-client')
 
 const app = express()
@@ -19,7 +19,11 @@ const http = server(app)
 const port = process.env.PORT || 3000
 
 async function setup() {
+  const {connection: {name}} = await db.connect()
+  console.log(`db connection open: ${name}`)
+
   const jwtClient = await googleClient.authenticate()
+
   const upload = require('./routes/upload')(jwtClient)
   app.use('/upload', upload)
 }

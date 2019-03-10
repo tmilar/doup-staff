@@ -6,6 +6,7 @@ Stack used:
 
 * node.js 8+
 * Google Drive API
+* MongoDB
 
 ## Setup
 
