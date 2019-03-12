@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {Button, Image, StatusBar, StyleSheet, Text, TextInput, View} from 'react-native';
+import {Button, Image, StyleSheet, Text, View, AsyncStorage} from 'react-native';
 import {ImagePicker, Permissions} from 'expo';
 import client from '../service/RequestClient';
+import moment from 'moment-timezone'
 
 export default class Uploader extends Component {
   state = {
@@ -111,8 +112,22 @@ export default class Uploader extends Component {
   }
 }
 
+/**
+ * Return date as String in local timezone
+ * @returns {string}
+ */
+function localISOTime() {
+  return moment.tz('America/Argentina/Buenos_Aires').format().slice(0,-6)
+}
+
 async function uploadImageAsync(uri) {
   const resource = '/upload'
+  const profileJSON = await AsyncStorage.getItem('userProfile')
+  if(!profileJSON) {
+    throw new Error('Perfil de usuario no disponible.')
+  }
+  const {username, firstName, lastName} = JSON.parse(profileJSON)
+  const photoName = `[${localISOTime()} ${username} - ${firstName} ${lastName}]`
 
   let uriParts = uri.split('.');
   let fileType = uriParts[uriParts.length - 1];
@@ -120,7 +135,7 @@ async function uploadImageAsync(uri) {
   let formData = new FormData();
   formData.append('photo', {
     uri,
-    name: `photo.${fileType}`,
+    name: `${photoName}.${fileType}`,
     type: `image/${fileType}`
   });
 
