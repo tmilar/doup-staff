@@ -8,7 +8,7 @@ async function isAuthorized(req, res, next) {
     req.headers['x-access-token'] ||
     req.cookies.token
 
-  if (!token) {
+  if (!token || token === "null") {
     return res
       .status(401)
       .json({status: 401, message: 'Unauthorized: No token provided'})
