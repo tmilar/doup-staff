@@ -7,7 +7,8 @@ import moment from 'moment-timezone'
 export default class Uploader extends Component {
   state = {
     image: null,
-    comment: ''
+    comment: '',
+    uploaded: false
   };
 
   render() {
@@ -36,10 +37,8 @@ export default class Uploader extends Component {
           <Image source={{uri: image}} style={styles.maybeRenderImage}/>
         </View>
 
-
-        <Text style={styles.maybeRenderImageText}>
-          {'¡Gracias por tu aporte!'}
-        </Text>
+        {this._maybeRenderThanksMessage()
+        }
 
       </View>
     );
@@ -54,7 +53,7 @@ export default class Uploader extends Component {
       <View style={{height: 40, width: '80%', marginTop: 20}}>
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
           <Button title="Subir" onPress={() => this.tryUploadImage()}/>
-          <Button title="Finalizar" onPress={() => this.props.navigation.goBack()}/>
+          {this.state.uploaded && <Button title="Finalizar" onPress={() => this.props.onGoBack()}/>}
         </View>
 
       </View>
@@ -67,15 +66,19 @@ export default class Uploader extends Component {
     } = await Permissions.askAsync(Permissions.CAMERA);
 
     // only if user allows permission to camera
-    if (cameraPerm === 'granted') {
-      let pickerResult = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        quality: 0.5,
-        exif: true
-      });
-
-      return this._handleImagePicked(pickerResult);
+    if (cameraPerm !== 'granted') {
+      return
     }
+
+    this.setState({uploaded: false})
+
+    let pickerResult = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.5,
+      exif: true
+    });
+
+    return this._handleImagePicked(pickerResult);
   };
 
   _handleImagePicked = async ({uri: image, cancelled}) => {
@@ -83,15 +86,13 @@ export default class Uploader extends Component {
       return
     }
 
-    await this.tryUploadImage(image)
-
     this.setState({
       image
     });
   };
 
-  async tryUploadImage(image) {
-
+  async tryUploadImage() {
+    const {image} = this.state
     if (!image) {
       Alert.alert('Error', 'No se selecciono imagen!')
       return
@@ -102,6 +103,7 @@ export default class Uploader extends Component {
     try {
       this.props.onUploadStart()
       uploadResponse = await uploadImageAsync(image)
+      this.setState({uploaded: true})
     } catch (e) {
       console.log({uploadResponse});
       console.log({e});
@@ -109,6 +111,18 @@ export default class Uploader extends Component {
     } finally {
       this.props.onUploadEnd()
     }
+  }
+
+  _maybeRenderThanksMessage = () => {
+    if (!this.state.uploaded) {
+      return
+    }
+
+    return (
+      <Text style={styles.maybeRenderImageText}>
+        {'¡Gracias por tu aporte!'}
+      </Text>
+    )
   }
 }
 
@@ -123,7 +137,7 @@ function localISOTime() {
 async function uploadImageAsync(uri) {
   const resource = '/upload'
   const profileJSON = await AsyncStorage.getItem('userProfile')
-  if(!profileJSON) {
+  if (!profileJSON) {
     throw new Error('Perfil de usuario no disponible.')
   }
   const {username, firstName, lastName} = JSON.parse(profileJSON)

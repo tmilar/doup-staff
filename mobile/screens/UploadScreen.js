@@ -40,7 +40,7 @@ export default class UploadScreen extends Component {
     return (
       <View style={styles.container}>
         <View style={{flex: 1, zIndex: 0}}>
-          <Uploader onUploadStart={this.onUploadStart} onUploadEnd={this.onUploadEnd}/>
+          <Uploader onUploadStart={this.onUploadStart} onUploadEnd={this.onUploadEnd} onGoBack={() => this.props.navigation.goBack()}/>
         </View>
         {this._maybeRenderUploadingOverlay()}
       </View>
