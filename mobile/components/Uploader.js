@@ -128,10 +128,10 @@ export default class Uploader extends Component {
 
 /**
  * Return date as String in local timezone
- * @returns {string}
+ * @returns {string} date in format 'YYYY-MM-ddThh:MM:SS'
  */
 function localISOTime() {
-  return moment.tz('America/Argentina/Buenos_Aires').format().slice(0,-6)
+  return moment.tz('America/Argentina/Buenos_Aires').format().slice(0, -6)
 }
 
 async function uploadImageAsync(uri) {
@@ -141,7 +141,7 @@ async function uploadImageAsync(uri) {
     throw new Error('Perfil de usuario no disponible.')
   }
   const {username, firstName, lastName} = JSON.parse(profileJSON)
-  const photoName = `[${localISOTime()} ${username} - ${firstName} ${lastName}]`
+  const photoName = `[${localISOTime().replace('T', '] [')}] ${username} - ${firstName} ${lastName}`
 
   let uriParts = uri.split('.');
   let fileType = uriParts[uriParts.length - 1];
