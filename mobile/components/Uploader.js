@@ -52,7 +52,7 @@ export default class Uploader extends Component {
     return (
       <View style={{height: 40, width: '80%', marginTop: 20}}>
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-          <Button title="Subir" onPress={() => this.tryUploadImage()}/>
+          {!this.state.uploaded && <Button title="Subir" onPress={() => this.tryUploadImage()}/>}
           {this.state.uploaded && <Button title="Finalizar" onPress={() => this.props.onGoBack()}/>}
         </View>
 

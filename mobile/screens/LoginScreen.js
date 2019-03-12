@@ -14,7 +14,7 @@ export default class LoginScreen extends Component {
   state = {
     username: '',
     password: '',
-    showFooter: true
+    keyboardVisible: false
   };
 
   _clearForm = () => {
@@ -46,8 +46,8 @@ export default class LoginScreen extends Component {
     try {
       const {token} = await this._loginRequest()
       await AsyncStorage.setItem('userToken', token);
-    } catch(error) {
-      if(error.status === 401) {
+    } catch (error) {
+      if (error.status === 401) {
         throw new Error('Usuario o contraseña inválidos, por favor intente nuevamente.')
       }
     }
@@ -107,20 +107,20 @@ export default class LoginScreen extends Component {
   }
 
   _handleKeyBoardToggle = (visible) => {
-    this.setState({showFooter: !visible});
+    this.setState({keyboardVisible: visible});
   }
 
   render() {
     return (
       <View style={[styles.container, styles.scroll, {backgroundColor: '#30282a'}]}>
-        <View style={[{flex: 1}]}>
-
+        <View style={{marginTop: 50, height: '40%'}}>
           <View style={styles.header}>
             <Image
               resizeMode="contain"
               source={require('../assets/images/logo-doup_green.png')}/>
           </View>
-
+        </View>
+        <View style={{flex: 1}}>
           <View style={styles.loginForm}>
             <TextInput
               value={this.state.username}
@@ -128,7 +128,7 @@ export default class LoginScreen extends Component {
               ref="usuario"
               style={[styles.textInput, {color: 'black'}]}
               selectTextOnFocus
-              placeholderTextColor="black"
+              placeholderTextColor="gray"
               underlineColorAndroid="transparent"
               autoCapitalize='none'
               returnKeyType='next'
@@ -142,7 +142,7 @@ export default class LoginScreen extends Component {
               style={[styles.textInput, {color: 'black'}]}
               autoCapitalize='none'
               autoCorrect={false}
-              placeholderTextColor="black"
+              placeholderTextColor="gray"
               underlineColorAndroid="transparent"
               secureTextEntry
               returnKeyType="go"
@@ -150,7 +150,7 @@ export default class LoginScreen extends Component {
               onSubmitEditing={this._handleLoginButtonPress}
             />
 
-            {this.state.showFooter && <View style={{flex: 1, justifyContent: 'space-around', alignItems: 'center'}}>
+            <View style={{flex: 1, justifyContent: 'space-around', alignItems: 'center'}}>
               <View style={styles.actionButtons}>
                 <Button
                   title="Login"
@@ -159,20 +159,19 @@ export default class LoginScreen extends Component {
                   onPress={this._handleLoginButtonPress}
                 />
 
+                {!this.state.keyboardVisible &&
                 <Text
                   onPress={this._handleRegisterTextPress}
                   style={styles.notRegistered}>
                   No estoy registrado
                 </Text>
+                }
               </View>
-            </View>}
+            </View>
 
             {/* The next view will animate to match the actual keyboards height */}
-            <KeyboardSpacer
-              onToggle={this._handleKeyBoardToggle}
-            />
+            <KeyboardSpacer onToggle={this._handleKeyBoardToggle}/>
           </View>
-
         </View>
       </View>
     )
@@ -186,7 +185,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   header: {
-    flex: 1.5,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
   },
