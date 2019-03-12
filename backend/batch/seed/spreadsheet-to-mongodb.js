@@ -64,7 +64,7 @@ function reportResults(results) {
     console.log('Did not find any row to read from the Spreadsheet.')
     return
   }
-  
+
   const resultsStr = results
     .map(({result}, i) => `#${i + 1} ${result}`)
     .join('\n')
@@ -75,7 +75,12 @@ function reportResults(results) {
 Promise.all([fetchRows(), dbConnect()])
   .then(([userRows]) => saveUsers(userRows))
   .then(reportResults)
-  .catch(error => {
+  .then(async () => {
+    await db.disconnect()
+    process.exitCode = 0
+  })
+  .catch(async error => {
     console.error(error)
+    await db.disconnect()
     process.exitCode = 1
   })
