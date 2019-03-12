@@ -1,5 +1,6 @@
 import React from 'react';
 import {Alert, Button, StyleSheet, View, Text, AsyncStorage} from 'react-native';
+import client from '../service/RequestClient'
 
 export default class HomeScreen extends React.Component {
 
@@ -28,11 +29,22 @@ export default class HomeScreen extends React.Component {
     });
   };
 
-  _startTurn = ({report}) => {
+  _startTurn = async ({report}) => {
     if (report) {
-      // TODO send report to API for notification
       // TODO ask for pic upload or write more details?
-      Alert.alert('Gracias', 'Gracias por notificarnos, con esto podremos verificar qué sucedió y tomar medidas para que no se repita nuevamente.')
+      try {
+        await client.sendRequest('/report', {
+          method: 'POST',
+          body: {
+            comment: '' //TODO use actual comment
+          }
+        })
+        Alert.alert('Gracias', 'Gracias por notificarnos, con esto podremos verificar qué sucedió y tomar medidas para que no se repita nuevamente.')
+      } catch (error) {
+        console.error(error)
+        Alert.alert('Error', 'Error de comunicacion con el servidor :( \nPor favor contacta a la administración!')
+        return
+      }
     } else {
       Alert.alert('Gracias', 'Qué bueno que esté todo en condiciones!')
     }
