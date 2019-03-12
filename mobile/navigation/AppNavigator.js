@@ -2,12 +2,12 @@ import React from 'react';
 import {Image} from 'react-native';
 import {createAppContainer, createStackNavigator, createSwitchNavigator} from 'react-navigation';
 
+import {Icon} from 'expo';
+import {AsyncStorage} from 'react-native';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import UploadScreen from '../screens/UploadScreen';
-import {Icon} from 'expo';
-import {AsyncStorage} from 'react-native';
 
 const AuthStack = createStackNavigator({
   Login: LoginScreen

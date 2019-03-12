@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {Text, View, StyleSheet, Button, Alert, TextInput, Keyboard, Image, AsyncStorage} from 'react-native'
 
+import client from '../service/RequestClient'
 
 import {showLoading, hideLoading} from 'react-native-notifyer';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
@@ -23,28 +24,57 @@ export default class LoginScreen extends Component {
     });
   }
 
+  _loginRequest = async () => {
+    const resource = '/auth/login'
+    const {username, password} = this.state
+
+    return client.sendRequest(resource, {
+      method: 'POST',
+      body: {
+        username,
+        password
+      }
+    })
+  }
+
+  _profileRequest = async () => {
+    const resource = '/user/me'
+    return client.sendRequest(resource)
+  }
+
   _signInAsync = async () => {
-    //TODO call API to get a good userToken
-    await AsyncStorage.setItem('userProfile', JSON.stringify({username: this.state.username}));
-    await AsyncStorage.setItem('userToken', 'abc');
-  };
+    try {
+      const {token} = await this._loginRequest()
+      await AsyncStorage.setItem('userToken', token);
+    } catch(error) {
+      if(error.status === 401) {
+        throw new Error('Usuario o contraseña inválidos, por favor intente nuevamente.')
+      }
+    }
+  }
+
+  _fetchUserProfile = async () => {
+    const profile = await this._profileRequest()
+    await AsyncStorage.setItem('userProfile', JSON.stringify(profile));
+  }
 
   _doLogin = async () => {
     if (this.state.username === '' || this.state.password === '') {
-      throw "¡El usuario o la contraseña no pueden estar vacíos!";
+      throw '¡El usuario o la contraseña no pueden estar vacíos!';
     }
 
     await this._signInAsync()
+    await this._fetchUserProfile()
   }
 
   _handleLoginButtonPress = async () => {
     Keyboard.dismiss();
-    showLoading({text: "Cargando..."});
+    showLoading({text: 'Cargando...'});
     try {
       await this._doLogin();
     } catch (e) {
       hideLoading();
-      console.log("Login error: ", e);
+      console.log('Login error: ', e);
       Alert.alert(
         'Error',
         e.message || e
@@ -73,7 +103,7 @@ export default class LoginScreen extends Component {
   }
 
   _goToHome = () => {
-    this.props.navigation.navigate('App', {username: this.state.username});
+    this.props.navigation.navigate('App');
   }
 
   _handleKeyBoardToggle = (visible) => {
@@ -88,7 +118,7 @@ export default class LoginScreen extends Component {
           <View style={styles.header}>
             <Image
               resizeMode="contain"
-              source={require('../assets/images/logo-doup_green.png')} />
+              source={require('../assets/images/logo-doup_green.png')}/>
           </View>
 
           <View style={styles.loginForm}>
@@ -96,7 +126,7 @@ export default class LoginScreen extends Component {
               value={this.state.username}
               placeholder="Usuario"
               ref="usuario"
-              style={[styles.textInput, {color: 'black' }]}
+              style={[styles.textInput, {color: 'black'}]}
               selectTextOnFocus
               placeholderTextColor="black"
               underlineColorAndroid="transparent"
@@ -109,7 +139,7 @@ export default class LoginScreen extends Component {
               value={this.state.password}
               placeholder="Contraseña"
               ref="password"
-              style={[styles.textInput, {color: 'black' }]}
+              style={[styles.textInput, {color: 'black'}]}
               autoCapitalize='none'
               autoCorrect={false}
               placeholderTextColor="black"
@@ -153,12 +183,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   header: {
     flex: 1.5,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   loginForm: {
     flex: 2,
@@ -178,11 +208,11 @@ const styles = StyleSheet.create({
     margin: 5
   },
   Login: {
-    color: "#4b944d",
+    color: '#4b944d',
     width: 250
   },
   scroll: {
-    padding: 30,
+    padding: 30
   },
   notRegistered: {
     textAlign: 'center',

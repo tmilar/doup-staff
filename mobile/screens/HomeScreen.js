@@ -9,12 +9,11 @@ export default class HomeScreen extends React.Component {
     username: ''
   }
 
-
   async componentWillMount() {
     const profile = await AsyncStorage.getItem('userProfile')
-    if(profile) {
-      const {username} = JSON.parse(profile)
-      this.setState({username})
+    if (profile) {
+      const {firstName} = JSON.parse(profile)
+      this.setState({firstName})
     }
   }
 
@@ -61,7 +60,7 @@ export default class HomeScreen extends React.Component {
 
   _maybeShowWelcomeMessage = () => {
     if (this.state.isTurnStart) {
-      const message = `Hola${this.state.username ? `, ${this.state.username}` : ''}!`
+      const message = `Hola${this.state.firstName ? `, ${this.state.firstName}` : ''}!`
       return (
         <Text style={styles.welcomeMessage}>{message}</Text>
       )
