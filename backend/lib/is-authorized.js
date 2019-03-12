@@ -7,6 +7,7 @@ async function isAuthorized(req, res, next) {
     req.query.token ||
     req.headers['x-access-token'] ||
     req.cookies.token
+
   if (!token) {
     return res
       .status(401)
@@ -20,6 +21,7 @@ async function isAuthorized(req, res, next) {
     res.status(401).json({status: 401, message: 'Unauthorized: Invalid token'})
   }
 
+  // User is logged in
   req.username = decoded.username
   next()
 }

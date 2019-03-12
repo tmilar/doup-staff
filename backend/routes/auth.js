@@ -2,6 +2,7 @@ const router = require('express').Router()
 const jwt = require('jsonwebtoken')
 const User = require('../model/user')
 const {authSecret} = require('../config')
+const isAuthorized = require('../lib/is-authorized')
 
 router.post('/register', async (req, res) => {
   const {username, email, password} = req.body
@@ -71,6 +72,10 @@ router.post('/login', async (req, res) => {
   res
     .status(200)
     .json({token})
+})
+
+router.get('/checkToken', isAuthorized, (req, res) => {
+  res.sendStatus(200)
 })
 
 module.exports = router
