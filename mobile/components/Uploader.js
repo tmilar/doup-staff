@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Button, Image, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {ImagePicker, Permissions} from 'expo';
+import client from '../service/RequestClient';
 
 export default class Uploader extends Component {
   state = {
@@ -20,20 +21,16 @@ export default class Uploader extends Component {
   }
 
   _maybeRenderImage = () => {
-    let {
-      image
-    } = this.state;
+    const {image} = this.state;
 
     if (!image) {
       return;
     }
 
     return (
-      <View
-        style={styles.maybeRenderContainer}>
-        <View
-          style={styles.maybeRenderImageContainer}>
-          <Image source={{ uri: image }} style={styles.maybeRenderImage} />
+      <View style={styles.maybeRenderContainer}>
+        <View style={styles.maybeRenderImageContainer}>
+          <Image source={{uri: image}} style={styles.maybeRenderImage}/>
         </View>
 
         <Text
@@ -49,59 +46,54 @@ export default class Uploader extends Component {
       status: cameraPerm
     } = await Permissions.askAsync(Permissions.CAMERA);
 
-    const {
-      status: cameraRollPerm
-    } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-
-    // only if user allows permission to camera AND camera roll
-    if (cameraPerm === 'granted' && cameraRollPerm === 'granted') {
+    // only if user allows permission to camera
+    if (cameraPerm === 'granted') {
       let pickerResult = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        quality: 0.5,
+        exif: true
       });
 
       return this._handleImagePicked(pickerResult);
     }
   };
 
-  _handleImagePicked = async pickerResult => {
-    let uploadResponse, uploadResult;
+  _handleImagePicked = async ({uri: image, cancelled}) => {
+    if (cancelled) {
+      return
+    }
+
+    await this.tryUploadImage(image)
+
+    this.setState({
+      image
+    });
+  };
+
+  async tryUploadImage(image) {
+
+    if (!image) {
+      Alert.alert('Error', 'No se selecciono imagen!')
+      return
+    }
+
+    let uploadResponse;
 
     try {
       this.props.onUploadStart()
-
-      if (!pickerResult.cancelled) {
-        uploadResponse = await uploadImageAsync(pickerResult.uri);
-        uploadResult = await uploadResponse.json();
-
-        this.setState({
-          image: pickerResult.uri
-        });
-      }
+      uploadResponse = await uploadImageAsync(image)
     } catch (e) {
-      console.log({ uploadResponse });
-      console.log({ uploadResult });
-      console.log({ e });
+      console.log({uploadResponse});
+      console.log({e});
       alert(`Error en la subida, por favor intente de nuevo. \n${JSON.stringify(e)}`);
     } finally {
       this.props.onUploadEnd()
     }
-  };
+  }
 }
 
 async function uploadImageAsync(uri) {
   const resource = '/upload'
-  let apiUrl = 'https://file-upload-example-backend-dkhqoilqqn.now.sh'
-
-  // Note:
-  // Uncomment this if you want to experiment with local server
-  // if (Constants.isDevice) {
-  //   const ngrok = 'http://93cedb6c.ngrok.io'
-  //   apiUrl = ngrok
-  // } else {
-  //   apiUrl = 'http://localhost:3000'
-  // }
-  const pathUrl = `${apiUrl}${resource}`;
 
   let uriParts = uri.split('.');
   let fileType = uriParts[uriParts.length - 1];
@@ -110,19 +102,12 @@ async function uploadImageAsync(uri) {
   formData.append('photo', {
     uri,
     name: `photo.${fileType}`,
-    type: `image/${fileType}`,
+    type: `image/${fileType}`
   });
 
-  let options = {
-    method: 'POST',
-    body: formData,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'multipart/form-data',
-    },
-  };
-
-  return fetch(pathUrl, options);
+  return client.postMultipartFormData(resource, {
+    body: formData
+  })
 }
 
 const styles = StyleSheet.create({

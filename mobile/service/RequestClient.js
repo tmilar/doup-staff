@@ -40,21 +40,26 @@ class RequestClient {
   }
 
   getMultipartFormData = async (url, requestOptions) => {
-    return this._sendMultipartFormDataRequest('GET', requestOptions)
+    return this._sendMultipartFormDataRequest('GET', url, requestOptions)
   }
 
   postMultipartFormData = async (url, requestOptions) => {
-    return this._sendMultipartFormDataRequest('POST', requestOptions)
+    return this._sendMultipartFormDataRequest('POST', url, requestOptions)
   }
+
   /**
    * Sends a multipart/form-data request
+   *
+   * @param verb
    * @param url
    * @param requestOptions
+   * @returns {Promise<Response>}
+   * @private
    */
-  _sendMultipartFormDataRequest = async (verb, url, requestOptions) => {
+  _sendMultipartFormDataRequest = async (verb, url, requestOptions = {}) => {
     url = apiUrl + url;
     let request = {
-      method: 'GET',
+      method: verb,
       headers: {
         'Content-Type': 'multipart/form-data',
       }
