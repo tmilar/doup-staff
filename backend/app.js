@@ -28,8 +28,10 @@ async function setup() {
 
   const upload = require('./routes/upload')(jwtClient)
   const auth = require('./routes/auth')
+  const user = require('./routes/user')
   app.use('/upload', upload)
   app.use('/auth', auth)
+  app.use('/user', user)
 }
 
 function start() {
