@@ -4,9 +4,12 @@ const bcrypt = require('bcrypt')
 const saltRounds = 10
 
 const UserSchema = new mongoose.Schema({
-  username: {type: String, required: true, unique: true},
-  email: {type: String, required: true, unique: true},
-  password: {type: String, required: true}
+  username: {type: String, required: true, unique: true, trim: true},
+  email: {type: String, unique: true, sparse: true},
+  password: {type: String, required: true},
+  isAdmin: {type: Boolean},
+  firstName: {type: String, trim: true},
+  lastName: {type: String, trim: true}
 })
 
 UserSchema.pre('save', async function () {
@@ -15,9 +18,9 @@ UserSchema.pre('save', async function () {
     return
   }
 
-  // Saving reference to this because of changing scopes
-  const document = this
-  document.password = await bcrypt.hash(document.password, saltRounds)
+  // Read the input password, then encrypt it
+  const {password} = this
+  this.password = await bcrypt.hash(password, saltRounds)
 })
 
 UserSchema.methods.checkPassword = async function (password) {
