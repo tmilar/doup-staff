@@ -1,21 +1,23 @@
 import React, {Component} from 'react';
-import {Button, Image, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Button, Image, StatusBar, StyleSheet, Text, TextInput, View} from 'react-native';
 import {ImagePicker, Permissions} from 'expo';
 import client from '../service/RequestClient';
 
 export default class Uploader extends Component {
   state = {
-    image: null
+    image: null,
+    comment: ''
   };
 
   render() {
+    const takePhotoText = this.state.image ? 'Sacar otra foto' : 'Sacar foto'
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="default" />
+      <View
+        style={this.state.image ? [styles.container, {justifyContent: 'flex-start', marginTop: 30}] : styles.container}>
 
-        <Button onPress={this._takePhoto} title="Subir foto" />
-
+        <Button onPress={this._takePhoto} title={takePhotoText}/>
         {this._maybeRenderImage()}
+        {this._maybeRenderImageActionButtons()}
       </View>
     );
   }
@@ -33,13 +35,30 @@ export default class Uploader extends Component {
           <Image source={{uri: image}} style={styles.maybeRenderImage}/>
         </View>
 
-        <Text
-          style={styles.maybeRenderImageText}>
+
+        <Text style={styles.maybeRenderImageText}>
           {'¡Gracias por tu aporte!'}
         </Text>
+
       </View>
     );
   };
+
+  _maybeRenderImageActionButtons = () => {
+    const {image} = this.state
+    if (!image) {
+      return
+    }
+    return (
+      <View style={{height: 40, width: '80%', marginTop: 20}}>
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
+          <Button title="Subir" onPress={() => this.tryUploadImage()}/>
+          <Button title="Finalizar" onPress={() => this.props.navigation.goBack()}/>
+        </View>
+
+      </View>
+    )
+  }
 
   _takePhoto = async () => {
     const {
@@ -124,19 +143,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: {
       height: 4,
-      width: 4,
+      width: 4
     },
     shadowRadius: 5,
-    width: 250,
+    width: 300
   },
   maybeRenderImageContainer: {
     borderTopLeftRadius: 3,
     borderTopRightRadius: 3,
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   maybeRenderImage: {
-    height: 250,
-    width: 250,
+    height: 300,
+    width: 300
   },
   maybeRenderImageText: {
     paddingHorizontal: 10,
