@@ -34,14 +34,14 @@ function fetchRows() {
 }
 
 async function saveUsers(userRows) {
-  const users = userRows.map(({dni, nombre, apellido, rol, email}) => {
-    const isAdmin = (rol && rol.toLowerCase() === 'admin') || undefined
-    const username = nombre.toLowerCase()[0] + apellido.toLowerCase()
+  const users = userRows.map(({dni, nombre: firstName, apellido: lastName, rol: role, email}) => {
+    const isAdmin = (role && role.toLowerCase() === 'admin') || undefined
+    const username = firstName.toLowerCase()[0] + lastName.toLowerCase()
     email = email || undefined
     return {
       password: dni,
-      firstName: nombre,
-      lastName: apellido,
+      firstName,
+      lastName,
       isAdmin,
       username,
       email
