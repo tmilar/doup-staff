@@ -2,7 +2,7 @@ const path = require('path')
 require('dotenv').config({path: path.resolve(__dirname, '.env')})
 
 const spreadsheetUrl = process.env.USERS_SPREADSHEET
-if(!spreadsheetUrl || spreadsheetUrl.length === 0) {
+if (!spreadsheetUrl || spreadsheetUrl.length === 0) {
   throw new Error('The spreadsheet url must be set in env variable USERS_SPREADSHEET.')
 }
 
@@ -60,7 +60,7 @@ async function saveUsers(userRows) {
 }
 
 function reportResults(results) {
-  if(results.length === 0) {
+  if (results.length === 0) {
     console.log('Did not find any row to read from the Spreadsheet.')
     return
   }

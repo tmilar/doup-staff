@@ -18,16 +18,15 @@ app.use(cors({
 app.use(cookieParser())
 
 if (app.get('env') === 'production') {
-  app.use(logger('combined'));
+  app.use(logger('combined'))
 } else {
-  app.use(logger('dev'));
+  app.use(logger('dev'))
 }
 
 const http = server(app)
 const port = process.env.PORT || 3000
 
 async function setup() {
-
   const [{connection: {name}}, jwtClient] = await Promise.all([
     db.connect(),
     googleClient.authenticate()

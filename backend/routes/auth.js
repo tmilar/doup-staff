@@ -26,7 +26,7 @@ router.post('/login', async (req, res) => {
   const {username, password} = req.body
   let user
   try {
-    user = await User.findOne({username}).select("+password")
+    user = await User.findOne({username}).select('+password')
   } catch (error) {
     console.error(`Problem looking for user ${username} in DB.`, error)
     return res
