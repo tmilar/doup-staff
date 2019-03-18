@@ -17,6 +17,7 @@ MONGODB_URL=
 AUTH_TOKEN_SECRET=
 GOOGLE_APPLICATION_CREDENTIALS=\path\to\google-account-keys.json
 DRIVE_PARENT_FOLDER='id of the gdrive folder where to put the files'
+GMAIL_SENDER_ACCOUNT='g suite mail sending account'
 ```
 3. Run:
 ```
