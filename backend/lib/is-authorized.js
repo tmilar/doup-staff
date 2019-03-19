@@ -18,7 +18,7 @@ async function isAuthorized(req, res, next) {
   try {
     decoded = await jwt.verify(token, authSecret)
   } catch (error) {
-    res.status(401).json({status: 401, message: 'Unauthorized: Invalid token'})
+    return res.status(401).json({status: 401, message: 'Unauthorized: Invalid token'})
   }
 
   // User is logged in
