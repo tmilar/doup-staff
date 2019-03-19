@@ -36,7 +36,8 @@ export default class HomeScreen extends React.Component {
         await client.sendRequest('/report', {
           method: 'POST',
           body: {
-            comment: '' //TODO use actual comment
+            comment: '', //TODO use actual comment
+            date: new Date()
           }
         })
         Alert.alert('Gracias', 'Gracias por notificarnos, con esto podremos verificar qué sucedió y tomar medidas para que no se repita nuevamente.')
