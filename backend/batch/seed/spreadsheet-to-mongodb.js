@@ -1,22 +1,18 @@
 const path = require('path')
 require('dotenv').config({path: path.resolve(__dirname, '.env')})
 
-const spreadsheetUrl = process.env.USERS_SPREADSHEET
-if (!spreadsheetUrl || spreadsheetUrl.length === 0) {
-  throw new Error('The spreadsheet url must be set in env variable USERS_SPREADSHEET.')
-}
 
 const Tabletop = require('tabletop')
 const Promise = require('bluebird')
 const db = require('../../config/db')
-const User = require('../../model/user')
+const usersMerger = require('./mergers/users')
 
 async function dbConnect() {
   const {connection: {name}} = await db.connect()
   console.log(`db connection open: ${name}`)
 }
 
-function fetchRows() {
+function fetchRows(spreadsheetUrl) {
   return new Promise((resolve, reject) => {
     Tabletop.init({
       key: spreadsheetUrl,
@@ -33,32 +29,6 @@ function fetchRows() {
   })
 }
 
-async function saveUsers(userRows) {
-  const users = userRows.map(({dni, nombre: firstName, apellido: lastName, rol: role, email}) => {
-    const isAdmin = (role && role.toLowerCase() === 'admin') || undefined
-    const username = firstName.toLowerCase()[0] + lastName.toLowerCase()
-    email = email || undefined
-    return {
-      password: dni,
-      firstName,
-      lastName,
-      isAdmin,
-      username,
-      email
-    }
-  })
-
-  return Promise.mapSeries(users, async user => {
-    try {
-      await User.create(user)
-    } catch (error) {
-      return {result: `User '${user.username}' error: ${error.message || error}`}
-    }
-
-    return {result: `User '${user.username}' saved succesfully.`}
-  })
-}
-
 function reportResults(results) {
   if (results.length === 0) {
     console.log('Did not find any row to read from the Spreadsheet.')
@@ -72,8 +42,8 @@ function reportResults(results) {
   console.log(resultsStr)
 }
 
-Promise.all([fetchRows(), dbConnect()])
-  .then(([userRows]) => saveUsers(userRows))
+Promise.all([dbConnect(), fetchRows(usersMerger.spreadsheetUrl)])
+  .then(([,userRows]) => usersMerger.save(userRows))
   .then(reportResults)
   .then(async () => {
     await db.disconnect()
