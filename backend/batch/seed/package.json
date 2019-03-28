@@ -1,18 +1,19 @@
 {
   "name": "doup-staff-seed-db",
   "version": "1.0.0",
-  "description": "Batch script to seed Users into a Mongo DB from a Google Spreadsheet.",
+  "description": "Batch script to seed data into a Mongo DB from a Google Spreadsheet.",
   "main": "spreadsheet-to-mongodb.js",
   "scripts": {
-    "run": "node spreadsheet-to-mongodb.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node spreadsheet-to-mongodb.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
   },
   "author": "tmilar",
   "license": "UNLICENSED",
   "dependencies": {
-    "bluebird": "^3.5.3",
-    "dotenv": "^6.2.0",
-    "tabletop": "^1.5.2"
+    "bluebird": "3.5.3",
+    "dotenv": "6.2.0",
+    "luxon": "1.12.0",
+    "tabletop": "1.5.2"
   },
   "xo": {
     "space": true,
@@ -25,6 +26,6 @@
     }
   },
   "devDependencies": {
-    "xo": "^0.24.0"
+    "xo": "0.24.0"
   }
 }

@@ -6,6 +6,7 @@ const Tabletop = require('tabletop')
 const Promise = require('bluebird')
 const db = require('../../config/db')
 const usersMerger = require('./mergers/users')
+const lessonsMerger = require('./mergers/lessons')
 
 async function dbConnect() {
   const {connection: {name}} = await db.connect()
@@ -30,6 +31,11 @@ function fetchRows(spreadsheetUrl) {
 }
 
 function reportResults(results) {
+  if (!results) {
+    const errMsg = 'No results to report!'
+    throw new Error(errMsg)
+  }
+
   if (results.length === 0) {
     console.log('Did not find any row to read from the Spreadsheet.')
     return
@@ -42,9 +48,24 @@ function reportResults(results) {
   console.log(resultsStr)
 }
 
-Promise.all([dbConnect(), fetchRows(usersMerger.spreadsheetUrl)])
-  .then(([,userRows]) => usersMerger.save(userRows))
-  .then(reportResults)
+function mergeAndReport(merger, rows, ...options) {
+  return merger.save(rows, ...options)
+    .then(reportResults)
+}
+
+const start = new Date(Date.UTC(2019, 3, 1, 3)) // Buenos Aires is UTC-3
+const end = new Date(Date.UTC(2019, 3, 31, 3)) // Buenos Aires is UTC-3
+
+Promise.all([dbConnect(), fetchRows(usersMerger.spreadsheetUrl), fetchRows(lessonsMerger.spreadsheetUrl)])
+  .then(async ([_, userRows, lessonRows]) => {
+    if (userRows) {
+      await mergeAndReport(usersMerger, userRows)
+    }
+
+    if (lessonRows) {
+      await mergeAndReport(lessonsMerger, lessonRows, start, end)
+    }
+  })
   .then(async () => {
     await db.disconnect()
     process.exitCode = 0
