@@ -1,6 +1,57 @@
 const path = require('path')
 require('dotenv').config({path: path.resolve(__dirname, '.env')})
 
+const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yargs')
+  .usage('Usage: $0 [options]')
+  .demandCommand(1)
+  .command('users', 'Merge users from spreadsheet to DB.')
+  .command('lessons', 'Merge lessons from spreadsheet to DB.', yargs => {
+    yargs
+      .option('start', {
+        description: 'Lessons load start date (format: \'yyyy-mm-dd\')'
+      })
+      .option('end', {
+        description: 'Lessons load end date (format: \'yyyy-mm-dd\')'
+      })
+      .demand(['start', 'end'], 'Must provide \'start\' and \'end\' date params.')
+  })
+  .example('$0 users', 'Save users only')
+  .example('$0 lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save lessons only, in the defined time range')
+  .example('$0 users lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save users and lessons (in the defined time range)')
+  .coerce('start', dateStr => {
+    const date = new Date(`${dateStr} GMT-0300`)
+    if (!date) {
+      throw new Error(`Bad start date value: '${dateStr}'`)
+    }
+
+    return date
+  })
+  .coerce('end', dateStr => {
+    const date = new Date(`${dateStr} 23:59:00 GMT-0300`)
+    if (!date) {
+      throw new Error(`Bad end date value: '${dateStr}'`)
+    }
+
+    return date
+  })
+  .check(({start, end}) => {
+    if (start && !end) {
+      throw new Error('Missing \'end\' date param.')
+    }
+
+    if (!end && start) {
+      throw new Error('Missing \'start\' date param.')
+    }
+
+    if (start && end && start > end) {
+      throw new Error('Error: \'start\' date must be earlier than \'end\' date!')
+    }
+    return true
+  })
+  .help('h')
+  .alias('h', 'help')
+  .alias('v', 'version')
+  .parse()
 
 const Tabletop = require('tabletop')
 const Promise = require('bluebird')
@@ -53,19 +104,16 @@ function mergeAndReport(merger, rows, ...options) {
     .then(reportResults)
 }
 
-const start = new Date(Date.UTC(2019, 3, 1, 3)) // Buenos Aires is UTC-3
-const end = new Date(Date.UTC(2019, 3, 31, 3)) // Buenos Aires is UTC-3
-
 Promise.all([dbConnect(), fetchRows(usersMerger.spreadsheetUrl), fetchRows(lessonsMerger.spreadsheetUrl)])
   .then(async ([_, userRows, lessonRows]) => {
-    if (userRows) {
+    if (selectedActions.includes('users') && userRows) {
       console.log(`Merging ${userRows.length} user rows...`)
       await mergeAndReport(usersMerger, userRows)
     }
 
-    if (lessonRows) {
+    if (selectedActions.includes('lessons') && lessonRows) {
       console.log(`Merging ${lessonRows.length} lesson rows...`)
-      await mergeAndReport(lessonsMerger, lessonRows, start, end)
+      await mergeAndReport(lessonsMerger, lessonRows, lessonsStart, lessonsEnd)
     }
 
     console.log('All rows merged.')
