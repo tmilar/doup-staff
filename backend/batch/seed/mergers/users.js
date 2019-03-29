@@ -2,10 +2,16 @@ const usersSpreadsheetUrl = process.env.USERS_SPREADSHEET
 if (!usersSpreadsheetUrl || usersSpreadsheetUrl.length === 0) {
   throw new Error('The spreadsheet url must be set in env variable USERS_SPREADSHEET.')
 }
+
 const Promise = require('bluebird')
 const User = require('../../../model/user')
 
 async function saveUsers(userRows) {
+  if (!userRows) {
+    console.error('No user rows defined.')
+    return []
+  }
+
   const users = userRows.map(({dni, nombre: firstName, apellido: lastName, rol: role, email}) => {
     const isAdmin = (role && role.toLowerCase() === 'admin') || undefined
     const username = firstName.toLowerCase()[0] + lastName.toLowerCase()

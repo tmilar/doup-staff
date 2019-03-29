@@ -19,13 +19,13 @@ const dayNamesSpanish = ['lunes',
   'sábado',
   'domingo']
 
-// function buildLessonString({date, weekDayString = '', startTime, endTime, startDate, endDate, discipline, site, instructor = null})
-function buildLessonString({date, weekDayString = '', startTime, endTime, startDate, endDate, discipline, site}) {
+function buildLessonString({date, weekDayString = '', startTime, endTime, startDate, endDate, discipline, site, instructor = null}) {
   if (!weekDayString || weekDayString.length === 0) {
-    // TODO calculate/get the weekday string from the startDate.
-    const weekDay = DateTime.fromJSDate(startDate).toFormat('c')
+    const weekDay = DateTime.fromJSDate(startDate || date).toFormat('c')
     weekDayString = dayNamesSpanish[weekDay - 1]
   }
+
+  const instructorName = (instructor && `${instructor.firstName} ${instructor.lastName}`) || ''
 
   if (!startTime || !endTime) {
     startTime = DateTime.fromJSDate(startDate).toFormat('HH:mm')
@@ -33,7 +33,7 @@ function buildLessonString({date, weekDayString = '', startTime, endTime, startD
   }
 
   const lessonDayStr = `${DateTime.fromJSDate(date || startDate).toLocaleString(DateTime.DATE_FULL)}`
-  return `${weekDayString}, ${lessonDayStr}, ${startTime} - ${endTime}, ${discipline}, ${site}`
+  return `${weekDayString}, ${lessonDayStr}, ${startTime} - ${endTime}, ${instructorName}, ${discipline}, ${site}`
 }
 
 function _trimStrings(row) {

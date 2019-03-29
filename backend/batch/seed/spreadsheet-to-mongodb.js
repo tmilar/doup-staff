@@ -59,15 +59,21 @@ const end = new Date(Date.UTC(2019, 3, 31, 3)) // Buenos Aires is UTC-3
 Promise.all([dbConnect(), fetchRows(usersMerger.spreadsheetUrl), fetchRows(lessonsMerger.spreadsheetUrl)])
   .then(async ([_, userRows, lessonRows]) => {
     if (userRows) {
+      console.log(`Merging ${userRows.length} user rows...`)
       await mergeAndReport(usersMerger, userRows)
     }
 
     if (lessonRows) {
+      console.log(`Merging ${lessonRows.length} lesson rows...`)
       await mergeAndReport(lessonsMerger, lessonRows, start, end)
     }
+
+    console.log('All rows merged.')
   })
   .then(async () => {
+    console.log('Disconnecting DB')
     await db.disconnect()
+    console.log('All done.')
     process.exitCode = 0
   })
   .catch(async error => {
