@@ -29,11 +29,12 @@ async function isAuthorized(req, res, next) {
   let user
   try {
     user = await User.find({username})
-  } catch(error) {
+  } catch (error) {
     console.error(`Authorization error: problem retrieving user ${username} from DB.`, error)
     return res.status(401).json({status: 401, message: 'Unauthorized: expired token'})
   }
-  if(!user) {
+
+  if (!user) {
     console.error(`Authorization error: could not find user ${username} in DB.`)
     return res.status(401).json({status: 401, message: 'Unauthorized: invalid user'})
   }
