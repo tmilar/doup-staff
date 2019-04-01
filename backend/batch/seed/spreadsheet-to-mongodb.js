@@ -19,7 +19,7 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
   .example('$0 lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save lessons only, in the defined time range')
   .example('$0 users lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save users and lessons (in the defined time range)')
   .coerce('start', dateStr => {
-    const date = new Date(`${dateStr} GMT-0300`)
+    const date = new Date(`${dateStr} GMT-0300`) // lock to Buenos Aires timezone
     if (!date) {
       throw new Error(`Bad start date value: '${dateStr}'`)
     }
@@ -27,7 +27,7 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
     return date
   })
   .coerce('end', dateStr => {
-    const date = new Date(`${dateStr} 23:59:00 GMT-0300`)
+    const date = new Date(`${dateStr} 23:59:00 GMT-0300`) // Buneos Aires timezone + end of day
     if (!date) {
       throw new Error(`Bad end date value: '${dateStr}'`)
     }
@@ -53,50 +53,16 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
   .alias('v', 'version')
   .parse()
 
-const Tabletop = require('tabletop')
 const Promise = require('bluebird')
 const db = require('../../config/db')
 const usersMerger = require('./mergers/users')
 const lessonsMerger = require('./mergers/lessons')
 
+const reportResults = require('./util/report-results')
+
 async function dbConnect() {
   const {connection: {name}} = await db.connect()
   console.log(`db connection open: ${name}`)
-}
-
-function fetchRows(spreadsheetUrl) {
-  return new Promise((resolve, reject) => {
-    Tabletop.init({
-      key: spreadsheetUrl,
-      simpleSheet: true,
-      callback: data => {
-        if (!data) {
-          return reject(new Error('Could not process data'))
-        }
-
-        console.log(`Successfully processed ${data.length} rows from Spreadsheet.`)
-        resolve(data)
-      }
-    })
-  })
-}
-
-function reportResults(results) {
-  if (!results) {
-    const errMsg = 'No results to report!'
-    throw new Error(errMsg)
-  }
-
-  if (results.length === 0) {
-    console.log('Did not find any row to read from the Spreadsheet.')
-    return
-  }
-
-  const resultsStr = results
-    .map(({result}, i) => `#${i + 1} ${result}`)
-    .join('\n')
-
-  console.log(resultsStr)
 }
 
 function mergeAndReport(merger, rows, ...options) {
@@ -104,7 +70,12 @@ function mergeAndReport(merger, rows, ...options) {
     .then(reportResults)
 }
 
-Promise.all([dbConnect(), fetchRows(usersMerger.spreadsheetUrl), fetchRows(lessonsMerger.spreadsheetUrl)])
+Promise
+  .all([
+    dbConnect(),
+    usersMerger.fetch(),
+    lessonsMerger.fetch()
+  ])
   .then(async ([_, userRows, lessonRows]) => {
     if (selectedActions.includes('users') && userRows) {
       console.log(`Merging ${userRows.length} user rows...`)

@@ -5,6 +5,7 @@ if (!usersSpreadsheetUrl || usersSpreadsheetUrl.length === 0) {
 
 const Promise = require('bluebird')
 const User = require('../../../model/user')
+const fetchRows = require('../util/fetch-rows')
 
 async function saveUsers(userRows) {
   if (!userRows) {
@@ -38,6 +39,6 @@ async function saveUsers(userRows) {
 }
 
 module.exports = {
+  fetch: () => fetchRows(usersSpreadsheetUrl),
   save: saveUsers,
-  spreadsheetUrl: usersSpreadsheetUrl
 }

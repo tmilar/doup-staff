@@ -10,6 +10,7 @@ Settings.defaultZoneName = 'America/Argentina/Buenos_Aires'
 
 const Lesson = require('../../../model/lesson')
 const User = require('../../../model/user')
+const fetchRows = require('../util/fetch-rows')
 
 const dayNamesSpanish = ['lunes',
   'martes',
@@ -115,6 +116,6 @@ async function saveLessons(lessonRows, startDate, endDate) {
 }
 
 module.exports = {
-  save: saveLessons,
-  spreadsheetUrl: lessonsSpreadsheetUrl
+  fetch: () => fetchRows(lessonsSpreadsheetUrl),
+  save: saveLessons
 }
