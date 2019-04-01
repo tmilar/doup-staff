@@ -73,16 +73,16 @@ function mergeAndReport(merger, rows, ...options) {
 Promise
   .all([
     dbConnect(),
-    usersMerger.fetch(),
-    lessonsMerger.fetch()
+    selectedActions.includes('users') && usersMerger.fetch(),
+    selectedActions.includes('lessons') && lessonsMerger.fetch()
   ])
   .then(async ([_, userRows, lessonRows]) => {
-    if (selectedActions.includes('users') && userRows) {
+    if (userRows) {
       console.log(`Merging ${userRows.length} user rows...`)
       await mergeAndReport(usersMerger, userRows)
     }
 
-    if (selectedActions.includes('lessons') && lessonRows) {
+    if (lessonRows) {
       console.log(`Merging ${lessonRows.length} lesson rows...`)
       await mergeAndReport(lessonsMerger, lessonRows, lessonsStart, lessonsEnd)
     }
