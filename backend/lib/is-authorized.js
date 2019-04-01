@@ -32,7 +32,7 @@ async function isAuthorized(req, res, next) {
 
   let user
   try {
-    user = await User.find({username})
+    user = await User.findOne({username})
   } catch (error) {
     console.error(`Authorization error: problem retrieving user ${username} from DB.`, error)
     return res
