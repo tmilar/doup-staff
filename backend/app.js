@@ -49,11 +49,13 @@ async function setup() {
   const upload = require('./routes/upload')(jwtClient)
   const auth = require('./routes/auth')
   const user = require('./routes/user')
-  const report = require('./routes/report')//(jwtClient)
+  const report = require('./routes/report')// (jwtClient)
+  const lesson = require('./routes/lesson')
   app.use('/upload', upload)
   app.use('/auth', auth)
   app.use('/user', user)
   app.use('/report', report)
+  app.use('/lesson', lesson)
 }
 
 function start() {
