@@ -39,7 +39,7 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
       throw new Error('Missing \'end\' date param.')
     }
 
-    if (!end && start) {
+    if (end && !start) {
       throw new Error('Missing \'start\' date param.')
     }
 
