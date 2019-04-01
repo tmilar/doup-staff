@@ -15,14 +15,13 @@ function isValidDateParam(dateStr) {
 }
 
 router.post('/', isAuthorized, async (req, res) => {
-  const {username} = req
-  const {date} = req.body
+  const {username, user: reportingUser, body: {date}} = req
+
   if(!isValidDateParam(date)) {
     return res.status(400)
       .json({status: 400, message: `El cliente ingreso una fecha invalida: '${date}'`})
   }
 
-  const reportingUser = await User.findOne({username})
   if(!reportingUser) {
     return res.status(400)
       .json({status: 400, message: `Usuario invalido: ${username}, por favor inicie sesion nuevamente.`})
@@ -33,8 +32,9 @@ router.post('/', isAuthorized, async (req, res) => {
 
   await sendReport({user, date: reportDate})
 
-  res.status(200)
+  return res.status(200)
     .json({date: reportDate, user: {username}})
 })
 
 module.exports = router
+// module.exports = googleJwtClient => router
