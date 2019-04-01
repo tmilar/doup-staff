@@ -11,6 +11,7 @@ Settings.defaultZoneName = 'America/Argentina/Buenos_Aires'
 const Lesson = require('../../../model/lesson')
 const User = require('../../../model/user')
 const fetchRows = require('../util/fetch-rows')
+const trimStringValues = require('../util/trim-string-values')
 
 const dayNamesSpanish = ['lunes',
   'martes',
@@ -37,16 +38,9 @@ function buildLessonString({date, weekDayString = '', startTime, endTime, startD
   return `${weekDayString}, ${lessonDayStr}, ${startTime} - ${endTime}, ${instructorName}, ${discipline}, ${site}`
 }
 
-function _trimStrings(row) {
-  Object.entries(row).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      row[key] = value.trim()
-    }
-  })
-}
 
 async function lessonRowMapper(row, weekNumber, weekYear) {
-  _trimStrings(row)
+  trimStringValues(row)
 
   const {
     dia: weekDayString,
