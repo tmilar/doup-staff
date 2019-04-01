@@ -23,6 +23,18 @@ if (app.get('env') === 'production') {
   app.use(logger('dev'))
 }
 
+app.use(function errorHandler(error, req, res, next) {
+  if (res.headersSent) {
+    return next(error)
+  }
+
+  const status = error.status || 500
+  const message = error.message || error
+  res
+    .status(status)
+    .json({status, message})
+})
+
 const http = server(app)
 const port = process.env.PORT || 3000
 

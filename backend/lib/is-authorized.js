@@ -10,16 +10,20 @@ async function isAuthorized(req, res, next) {
     req.cookies.token
 
   if (!token || token === 'null') {
+    console.log('Unauthorized: No token provided.')
     return res
       .status(401)
-      .json({status: 401, message: 'Unauthorized: No token provided'})
+      .json({status: 401, message: 'El usuario no esta autorizado'})
   }
 
   let decoded
   try {
     decoded = await jwt.verify(token, authSecret)
   } catch (error) {
-    return res.status(401).json({status: 401, message: 'Unauthorized: Invalid token'})
+    console.error('Unauthorized: Invalid token.')
+    return res
+      .status(401)
+      .json({status: 401, message: 'La sesion expiro, por favor vuelva a ingresar'})
   }
 
   // User is logged in
@@ -31,12 +35,16 @@ async function isAuthorized(req, res, next) {
     user = await User.find({username})
   } catch (error) {
     console.error(`Authorization error: problem retrieving user ${username} from DB.`, error)
-    return res.status(401).json({status: 401, message: 'Unauthorized: expired token'})
+    return res
+      .status(401)
+      .json({status: 401, message: 'La sesion expiro, por favor vuelva a ingresar'})
   }
 
   if (!user) {
     console.error(`Authorization error: could not find user ${username} in DB.`)
-    return res.status(401).json({status: 401, message: 'Unauthorized: invalid user'})
+    return res
+      .status(401)
+      .json({status: 401, message: 'El nombre de usuario es inválido, por favor vuelva a ingresar.'})
   }
 
   req.user = user

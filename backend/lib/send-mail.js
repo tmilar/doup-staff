@@ -9,7 +9,7 @@ const key = require('../secret/doup-staff-6a4c3ef6c6e3.json')
 const gmail = google.gmail({version: 'v1'})
 const {gmail: {senderAccount}} = require('../config')
 
-//TODO extract this config logic to 'config' or 'client/'
+// TODO extract this config logic to 'config' or 'client/'
 const jwtClient = new google.auth.JWT(
   key.client_email,
   null,

@@ -3,8 +3,9 @@ const jwt = require('jsonwebtoken')
 const User = require('../model/user')
 const {authSecret} = require('../config')
 const isAuthorized = require('../lib/is-authorized')
+const asyncHandler = require('../lib/async-handler')
 
-router.post('/register', async (req, res) => {
+router.post('/register', asyncHandler(async (req, res) => {
   const {username, email, password} = req.body
   const user = new User({username, email, password})
 
@@ -20,9 +21,9 @@ router.post('/register', async (req, res) => {
   return res
     .status(200)
     .json({username, email})
-})
+}))
 
-router.post('/login', async (req, res) => {
+router.post('/login', asyncHandler(async (req, res) => {
   const {username, password} = req.body
   let user
   try {
@@ -31,37 +32,31 @@ router.post('/login', async (req, res) => {
     console.error(`Problem looking for user ${username} in DB.`, error)
     return res
       .status(500)
-      .json({
-        error: 'Internal error please try again'
-      })
+      .json({status: 500, error: 'Error de base de datos al iniciar sesion'})
   }
 
   if (!user) {
     console.log(`Username not found: ${username}`)
     return res
       .status(401)
-      .json({
-        error: 'Usuario o contraseña incorrectos.'
-      })
+      .json({status: 401, message: 'Usuario o contraseña incorrectos'})
   }
 
   let same
   try {
     same = await user.checkPassword(password)
   } catch (error) {
-    console.error(error)
-    return res.status(500)
-      .json({
-        error: 'Internal error please try again'
-      })
+    console.error('Unexpected error when checking user password', error)
+    return res
+      .status(500)
+      .json({status: 500, message: 'Error del servidor al validar las credenciales'})
   }
 
   if (!same) {
     console.log(`Incorrect password for user ${username}`)
-    return res.status(401)
-      .json({
-        error: 'Usuario o contraseña incorrectos'
-      })
+    return res
+      .status(401)
+      .json({status: 401, message: 'Usuario o contraseña incorrectos'})
   }
 
   // Issue token
@@ -69,10 +64,11 @@ router.post('/login', async (req, res) => {
   const token = jwt.sign(payload, authSecret, {
     expiresIn: '60d'
   })
+
   res
     .status(200)
     .json({token})
-})
+}))
 
 router.get('/checkToken', isAuthorized, (req, res) => {
   res.sendStatus(200)
