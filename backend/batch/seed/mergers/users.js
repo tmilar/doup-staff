@@ -51,5 +51,5 @@ async function saveUsers(userRows) {
 
 module.exports = {
   fetch: () => fetchRows(usersSpreadsheetUrl),
-  save: saveUsers,
+  save: saveUsers
 }

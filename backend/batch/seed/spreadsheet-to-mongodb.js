@@ -19,7 +19,7 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
   .example('$0 lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save lessons only, in the defined time range')
   .example('$0 users lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save users and lessons (in the defined time range)')
   .coerce('start', dateStr => {
-    const date = new Date(`${dateStr} GMT-0300`) // lock to Buenos Aires timezone
+    const date = new Date(`${dateStr} GMT-0300`) // Lock to Buenos Aires timezone
     if (!date) {
       throw new Error(`Bad start date value: '${dateStr}'`)
     }
@@ -46,6 +46,7 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
     if (start && end && start > end) {
       throw new Error('Error: \'start\' date must be earlier than \'end\' date!')
     }
+
     return true
   })
   .help('h')

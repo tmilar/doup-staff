@@ -38,7 +38,6 @@ function buildLessonString({date, weekDayString = '', startTime, endTime, startD
   return `${weekDayString}, ${lessonDayStr}, ${startTime} - ${endTime}, ${instructorName}, ${discipline}, ${site}`
 }
 
-
 async function lessonRowMapper(row, weekNumber, weekYear) {
   trimStringValues(row)
 
