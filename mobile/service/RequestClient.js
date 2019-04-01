@@ -139,7 +139,7 @@ class RequestClient {
    */
   _parseJSON = async (response) => {
     let text = await response.text();
-    let parsed = isJSON(text) ? JSON.parse(text) : {};
+    let parsed = isJSON(text) ? JSON.parse(text) : null;
     return parsed;
   };
 
