@@ -1,17 +1,36 @@
 const sendMail = require('../lib/send-mail')
 const User = require('../model/user')
 const {drive: {parentFolder}} = require('../config')
+const moment = require('moment-timezone')
 
-const subjectTemplate = ({username, firstName, lastName}) => `Reporte de ${firstName} ${lastName} (${username}).`
-const bodyTemplate = (date, {username}) => 'Hola, ' +
-  `\n\nEl usuario '${username}' ha indicado a las ${date} que no recibió el espacio en condiciones.` +
-  `\n\nSe pueden verificar las fotos previas (subidas por sus compañeros anteriores) en: https://drive.google.com/drive/u/0/folders/${parentFolder}` +
-  '\n\nGracias, ' +
-  '\nDOUP! Staff admin'
+const subjectTemplate = ({username, firstName, lastName, site}) => `Reporte de ${firstName} ${lastName} (${username}), en ${site}.`
+const bodyTemplate = (date, {username}, previousLessons = [], currentLesson) => [
+  'Hola, ',
+  '',
+  `El usuario '${username}' ha indicado el ${moment(date).format("dddd, D [de] MMMM, [a las] HH:mm")}, que no recibió el espacio '${currentLesson.site}' en condiciones.`,
+  '',
+  previousLessons.length ?
+    [
+      'Las clases previas en esa fecha y espacio, fueron: ',
+      '',
+      previousLessons
+        .map(({startDate, endDate, discipline, instructor: {firstName, lastName} = {}}) =>
+          `\t* ${discipline} (por ${firstName} ${lastName}), de ${moment(startDate).format('HH:mm')} a ${moment(endDate).format('HH:mm')}.`)
+        .join('\n')
+    ].join('\n')
+    :
+    'Es la primer clase del día en este espacio.',
+  '',
+  `Se pueden verificar las fotos previas (subidas por sus compañeros anteriores), en: `,
+  `https://drive.google.com/drive/u/0/folders/${parentFolder}`,
+  '',
+  'Gracias, ',
+  'DOUP! Staff admin'
+].join('\n')
 
-async function sendReport({date, user: {username, firstName, lastName}}) {
-  const subject = subjectTemplate({username, firstName, lastName})
-  const body = bodyTemplate(date, {username})
+async function sendReport({date, user: {username, firstName, lastName}, previousLessons, currentLesson}) {
+  const subject = subjectTemplate({username, firstName, lastName, site: currentLesson.site})
+  const body = bodyTemplate(date, {username}, previousLessons, currentLesson)
 
   const admins = await User.find({isAdmin: true})
   if (!admins || admins.length === 0) {
