@@ -89,15 +89,18 @@ export default class HomeScreen extends React.Component {
   }
 
   _maybeShowWelcomeMessage = () => {
-    if (this.state.isTurnStart) {
-      const message = `Hola${this.state.firstName ? `, ${this.state.firstName}` : ''}!`
-      return (
-        <Text style={styles.welcomeMessage}>{message}</Text>
-      )
+    if (!this.state.isTurnStart) {
+      return
     }
+    const message = `Hola${this.state.firstName ? `, ${this.state.firstName}` : ''}!`
+    return (
+      <Text style={styles.welcomeMessage}>{message}</Text>
+    )
   }
 
   _maybeShowNextLessonMessage = () => {
+    const upcomingLesson = this.state.isTurnStart ? 'Próxima clase' : 'Clase actual'
+
     const nextLessonMessage = lesson => {
       if (!lesson) {
         return 'No se ha encontrado tu próxima clase.'
@@ -107,7 +110,7 @@ export default class HomeScreen extends React.Component {
       const startStr = moment(startDate).calendar()
       const endStr = moment(endDate).format("H:mm")
 
-      return `Próxima clase: ${discipline}, en ${site}, ${startStr} - ${endStr}.`
+      return `${upcomingLesson}: ${discipline}, en ${site}, ${startStr} - ${endStr}.`
     }
 
     return (
@@ -116,25 +119,29 @@ export default class HomeScreen extends React.Component {
   }
 
   _maybeShowTurnStartButton = () => {
-    if (this.state.isTurnStart) {
-      return (
-        <View>
-          <View style={styles.actionButton}>
-            <Button title="Comenzar Turno" onPress={this._reviewPreviousTurn}/>
-          </View>
-        </View>
-      )
+    if (!this.state.isTurnStart) {
+      return
     }
+
+    return (
+      <View>
+        <View style={styles.actionButton}>
+          <Button title="Comenzar Turno" onPress={this._reviewPreviousTurn}/>
+        </View>
+      </View>
+    )
   }
 
   _maybeShowTurnEndButton = () => {
-    if (this.state.isTurnEnd) {
-      return (
-        <View style={styles.actionButton}>
-          <Button title="Finalizar Turno" onPress={this._goToUploadScreen}/>
-        </View>
-      )
+    if (!this.state.isTurnEnd) {
+      return
     }
+
+    return (
+      <View style={styles.actionButton}>
+        <Button title="Finalizar Turno" onPress={this._goToUploadScreen}/>
+      </View>
+    )
   }
 
   render() {
