@@ -25,8 +25,20 @@ export default class HomeScreen extends React.Component {
     }
   }
 
-  _retrieveNextLesson = async () => {
+  _updateNextLesson = async () => {
     const nextLesson = await client.sendRequest('/lesson/next')
+    if (nextLesson) {
+      await AsyncStorage.setItem('nextLesson', JSON.stringify(nextLesson))
+    }
+    return nextLesson;
+  }
+
+  _retrieveNextLesson = async () => {
+    let nextLesson = JSON.parse(await AsyncStorage.getItem('nextLesson') || null)
+    if (!nextLesson) {
+      // fetch & save next lesson
+      nextLesson = await this._updateNextLesson();
+    }
     this.setState({nextLesson})
   }
 
@@ -35,9 +47,10 @@ export default class HomeScreen extends React.Component {
     await this._retrieveNextLesson()
   }
 
-  _goToUploadScreen = () => {
+  _goToUploadScreen = lesson => {
     this.props.navigation.navigate('Upload', {
-      onFinish: () => {
+      lesson,
+      onFinish: async () => {
         this.setState({
           isTurnStart: true,
           isTurnEnd: false
@@ -60,7 +73,7 @@ export default class HomeScreen extends React.Component {
         Alert.alert('Gracias', 'Gracias por notificarnos, con esto podremos verificar qué sucedió y tomar medidas para que no se repita nuevamente.')
       } catch (error) {
         console.error(error)
-        Alert.alert('Error', 'Error de comunicacion con el servidor :( \nPor favor contacta a la administración!')
+        Alert.alert('Error', 'Error de comunicación con el servidor. \nPor favor contacta a la administración!')
         return
       }
     } else {
@@ -71,6 +84,11 @@ export default class HomeScreen extends React.Component {
       isTurnStart: false,
       isTurnEnd: true
     })
+  }
+
+  _completeCurrentTurn = async () => {
+    const currentLesson = JSON.parse(await AsyncStorage.getItem('nextLesson'))
+    this._goToUploadScreen(currentLesson)
   }
 
   _reviewPreviousTurn = () => {
@@ -139,7 +157,7 @@ export default class HomeScreen extends React.Component {
 
     return (
       <View style={styles.actionButton}>
-        <Button title="Finalizar Turno" onPress={this._goToUploadScreen}/>
+        <Button title="Finalizar Turno" onPress={this._completeCurrentTurn}/>
       </View>
     )
   }

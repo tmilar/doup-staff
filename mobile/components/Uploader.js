@@ -102,30 +102,45 @@ export default class Uploader extends Component {
       return
     }
 
-    this.setState({
-      image
-    });
+    this.setState({image});
   };
+
+  _buildPictureName = async () => {
+    const profile = JSON.parse(await AsyncStorage.getItem('userProfile') || null)
+    if (!profile) {
+      throw new Error('Perfil de usuario no disponible.')
+    }
+
+    const uploadTimeStr = moment().format('[[]YYYY-MM-DD[]] [[]HH:mm:ss[]]')
+    const {username, firstName, lastName} = profile
+    const {discipline, site, startDate, endDate} = this.props.lesson
+    const startTime = moment(startDate).format('HH:mm')
+    const endTime = moment(endDate).format('HH:mm')
+
+    return `${uploadTimeStr} - ${discipline}, '${site}' (${startTime} - ${endTime}) - ${username} (${firstName} ${lastName})`
+  }
 
   async tryUploadImage() {
     const {image} = this.state
     if (!image) {
-      Alert.alert('Error', 'No se selecciono imagen!')
+      Alert.alert('Error', 'No se seleccionó una imagen!')
       return
     }
+
+    const uploadName = await this._buildPictureName()
 
     let uploadResponse;
 
     try {
       this.props.onUploadStart()
-      uploadResponse = await uploadImageAsync(image)
+      uploadResponse = await uploadImageAsync(image, uploadName)
       this.setState({uploaded: true})
     } catch (e) {
       console.log({uploadResponse});
       console.log({e});
-      alert(`Error en la subida, por favor intente de nuevo. \n${JSON.stringify(e)}`);
+      Alert.alert(`Error`,`No se pudo subir su imagen, por favor intente nuevamente. \n${JSON.stringify(e)}`);
     } finally {
-      this.props.onUploadEnd()
+      await this.props.onUploadEnd()
     }
   }
 
@@ -142,32 +157,21 @@ export default class Uploader extends Component {
   }
 }
 
-/**
- * Return date as String in local timezone
- * @returns {string} date in format 'YYYY-MM-ddThh:MM:SS'
- */
-function localISOTime() {
-  return moment.tz('America/Argentina/Buenos_Aires').format().slice(0, -6)
-}
-
-async function uploadImageAsync(uri) {
+async function uploadImageAsync(uri, pictureTitle) {
   const resource = '/upload'
-  const profileJSON = await AsyncStorage.getItem('userProfile')
-  if (!profileJSON) {
-    throw new Error('Perfil de usuario no disponible.')
-  }
-  const {username, firstName, lastName} = JSON.parse(profileJSON)
-  const photoName = `[${localISOTime().replace('T', '] [')}] ${username} - ${firstName} ${lastName}`
 
   let uriParts = uri.split('.');
   let fileType = uriParts[uriParts.length - 1];
+  let name = `${pictureTitle}.${fileType}`
 
   let formData = new FormData();
   formData.append('photo', {
     uri,
-    name: `${photoName}.${fileType}`,
+    name,
     type: `image/${fileType}`
   });
+
+  console.log(`Uploading... ${name}`)
 
   return client.postMultipartFormData(resource, {
     body: formData

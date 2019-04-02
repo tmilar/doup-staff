@@ -30,17 +30,22 @@ export default class UploadScreen extends Component {
     this.toggleLoading()
   }
 
-  onUploadEnd = () => {
-    const onFinishCallback = this.props.navigation.getParam('onFinish', () => {})
-    onFinishCallback()
+  onUploadEnd = async () => {
+    const onFinish = this.props.navigation.getParam('onFinish', async () => null)
+    await onFinish()
     this.toggleLoading()
   }
 
   render() {
+    const currentLesson = this.props.navigation.getParam('lesson')
     return (
       <View style={styles.container}>
         <View style={{flex: 1, zIndex: 0}}>
-          <Uploader onUploadStart={this.onUploadStart} onUploadEnd={this.onUploadEnd} onGoBack={() => this.props.navigation.goBack()}/>
+          <Uploader lesson={currentLesson}
+                    onUploadStart={this.onUploadStart}
+                    onUploadEnd={this.onUploadEnd}
+                    onGoBack={() => this.props.navigation.goBack()}
+          />
         </View>
         {this._maybeRenderUploadingOverlay()}
       </View>
