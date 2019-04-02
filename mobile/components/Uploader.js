@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {Button, Image, StyleSheet, Text, View, AsyncStorage} from 'react-native';
-import {ImagePicker, Permissions} from 'expo';
+import {Button, Image, StyleSheet, Text, View, AsyncStorage, Alert, Platform} from 'react-native';
+import {ImagePicker, Permissions, Linking, IntentLauncherAndroid as IntentLauncher} from 'expo';
 import client from '../service/RequestClient';
 import moment from 'moment-timezone'
 
@@ -61,12 +61,28 @@ export default class Uploader extends Component {
   }
 
   _takePhoto = async () => {
-    const {
-      status: cameraPerm
-    } = await Permissions.askAsync(Permissions.CAMERA);
+    const {status: cameraPerm} = await Permissions.askAsync(Permissions.CAMERA);
+    const {status: cameraRollPerm} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
-    // only if user allows permission to camera
-    if (cameraPerm !== 'granted') {
+    // only if user allows permission to camera AND camera roll
+    if (cameraPerm !== 'granted' || cameraRollPerm !== 'granted') {
+      await new Promise(resolve => {
+        Alert.alert(
+          "¡Ups!",
+          'Es necesario autorizar a la app para tomar fotos.',
+          [{
+            text: 'OK',
+            onPress: resolve
+          }]
+        )
+      })
+
+      // If rejected, user must give permissions manually.
+      if (Platform.OS === 'ios') {
+        Linking.openURL('app-settings:')
+      } else {
+        await IntentLauncher.startActivityAsync(IntentLauncher.ACTION_APPLICATION_SETTINGS);
+      }
       return
     }
 
