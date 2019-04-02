@@ -1,8 +1,13 @@
 const router = require('express').Router()
+const moment = require('moment-timezone')
 const isAuthorized = require('../lib/is-authorized')
 const Report = require('../model/report')
+const Lesson = require('../model/lesson')
 const sendReport = require('../service/report')
 const asyncHandler = require('../lib/async-handler')
+
+moment.locale('es')
+moment.tz.setDefault("America/Argentina/Buenos_Aires");
 
 function isValidDateParam(dateStr) {
   const dateParam = new Date(dateStr)
@@ -16,20 +21,32 @@ function isValidDateParam(dateStr) {
 }
 
 router.post('/', isAuthorized, asyncHandler(async (req, res) => {
-  const {username, user: reportingUser, body: {date}} = req
+  const {username, user: reportingUser, body: {date: reportDate}} = req
 
-  if (!isValidDateParam(date)) {
-    console.error(`Invalid date param: ${date}`)
+  if (!isValidDateParam(reportDate)) {
+    console.error(`Invalid date param: ${reportDate}`)
     return res
       .status(400)
-      .json({status: 400, message: `Fecha inválida: '${date}'`})
+      .json({status: 400, message: `Fecha inválida: '${reportDate}'`})
   }
 
+  const currentLesson = await Lesson.findNextForUser(reportingUser._id)
+  const startOfDay = moment(reportDate).startOf('day')
+  const previousLessons = await Lesson.find()
+    .and([
+      {site: currentLesson.site},
+      {startDate: {$gt: startOfDay}},
+      {startDate: {$lt: reportDate}},
+      {_id: {$ne: currentLesson._id}}
+    ])
+    .populate('instructor')
+    .sort({endDate: -1})
+
   // Create a new report, and send it via mail.
-  const {user, date: reportDate} = await Report.create({user: reportingUser, date})
+  const report = await Report.create({user: reportingUser, date: reportDate, previousLessons, currentLesson})
 
   try {
-    await sendReport({user, date: reportDate})
+    await sendReport(report)
   } catch (error) {
     console.error(`Unexpected error when sending mail report from user '${user.username}'`, error)
   }

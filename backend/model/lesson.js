@@ -21,8 +21,7 @@ LessonsSchema.statics.findNextForUser = async function (userId) {
   const [nextLesson] = await this
     .find({instructor: userId, endDate: {$gte: new Date()}})
     .sort({startDate: 1})
-    .limit(1)
-    .lean() || []
+    .limit(1) || []
 
   if (nextLesson) {
     delete nextLesson.__v
