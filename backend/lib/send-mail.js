@@ -32,7 +32,7 @@ async function sendMail({to, subject, body}) {
     'Content-Transfer-Encoding: 7bit',
     `To: ${to}`,
     `From: ${senderAccount}`, // Better match the impersonated account
-    `Subject: ${subject}`,
+    `Subject: ${subject}\n`,
     `${body}`
   ].join('\n')
 
