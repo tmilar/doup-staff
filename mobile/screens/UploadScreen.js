@@ -4,11 +4,9 @@ import {ActivityIndicator, Dimensions, StyleSheet, View} from 'react-native';
 import Uploader from '../components/Uploader';
 
 export default class UploadScreen extends Component {
-  constructor() {
-    super();
-    this.state = {
-      loading: false
-    }
+
+  state = {
+    loading: false
   }
 
   _maybeRenderUploadingOverlay = () => {

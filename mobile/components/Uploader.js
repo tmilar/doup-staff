@@ -12,7 +12,7 @@ export default class Uploader extends Component {
   };
 
   render() {
-    const takePhotoText = this.state.image ? 'Sacar otra foto' : 'Sacar foto'
+    const takePhotoText = this.state.image ? 'Cambiar foto' : 'Sacar foto'
     return (
       <View
         style={this.state.image ? [styles.container, {justifyContent: 'flex-start', marginTop: 30}] : styles.container}>
@@ -37,9 +37,7 @@ export default class Uploader extends Component {
           <Image source={{uri: image}} style={styles.maybeRenderImage}/>
         </View>
 
-        {this._maybeRenderThanksMessage()
-        }
-
+        {this._maybeRenderThanksMessage()}
       </View>
     );
   };
@@ -53,7 +51,7 @@ export default class Uploader extends Component {
       <View style={{height: 40, width: '80%', marginTop: 20}}>
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
           {!this.state.uploaded && <Button title="Subir" onPress={() => this.tryUploadImage()}/>}
-          {this.state.uploaded && <Button title="Finalizar" onPress={() => this.props.onGoBack()}/>}
+          {this.state.uploaded && <Button title="Listo" onPress={() => this.props.onGoBack()}/>}
         </View>
 
       </View>

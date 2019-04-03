@@ -51,6 +51,7 @@ export default class HomeScreen extends React.Component {
     this.props.navigation.navigate('Upload', {
       lesson,
       onFinish: async () => {
+        await this._updateNextLesson()
         this.setState({
           isTurnStart: true,
           isTurnEnd: false
