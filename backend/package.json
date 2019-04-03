@@ -1,6 +1,6 @@
 {
   "name": "doup-staff",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Backend service to manage DOUP! staff requirements.",
   "main": "app.js",
   "scripts": {
