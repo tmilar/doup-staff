@@ -45,6 +45,7 @@ async function sendReport({date, user: {username, firstName, lastName}, previous
     return
   }
 
+  console.log(`Sending report from ${username} (${firstName} ${lastName}) to admin emails: '${to}'`)
   try {
     await sendMail({subject, body, to})
   } catch (error) {
