@@ -8,7 +8,7 @@
       "ios",
       "android"
     ],
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon-doup.png",
     "splash": {
@@ -27,7 +27,7 @@
       "supportsTablet": true
     },
     "extra": {
-      "apiUrl": "http://192.168.0.5:3000"
+      "apiUrl": "https://doup-staff.now.sh"
     }
   }
 }
