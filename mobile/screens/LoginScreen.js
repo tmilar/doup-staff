@@ -6,6 +6,8 @@ import client from '../service/RequestClient'
 import {showLoading, hideLoading} from 'react-native-notifyer';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 
+const pkg = require('../package.json');
+
 export default class LoginScreen extends Component {
   static navigationOptions = {
     header: null
@@ -111,6 +113,7 @@ export default class LoginScreen extends Component {
   }
 
   render() {
+    const versionText = `v${pkg.version}`
     return (
       <View style={[styles.container, styles.scroll, {backgroundColor: '#30282a'}]}>
         <View style={{marginTop: 50, height: '40%'}}>
@@ -164,6 +167,13 @@ export default class LoginScreen extends Component {
                   onPress={this._handleRegisterTextPress}
                   style={styles.notRegistered}>
                   No estoy registrado
+                </Text>
+                }
+
+                {!this.state.keyboardVisible &&
+                <Text
+                  style={styles.notRegistered}>
+                  {versionText}
                 </Text>
                 }
               </View>
