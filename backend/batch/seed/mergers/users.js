@@ -8,6 +8,11 @@ const User = require('../../../model/user')
 const fetchRows = require('../util/fetch-rows')
 const trimStringValues = require('../util/trim-string-values')
 
+function _generateDefaultPassword(firstName) {
+  const suffix = '123'
+  return `${firstName.toLowerCase()}${suffix}`;
+}
+
 async function saveUsers(userRows) {
   if (!userRows) {
     console.error('No user rows defined.')
@@ -27,9 +32,10 @@ async function saveUsers(userRows) {
 
     const isAdmin = (role && role.toLowerCase() === 'admin') || undefined
     const username = firstName.toLowerCase()[0] + lastName.toLowerCase()
+    const password = dni || _generateDefaultPassword(firstName)
 
     return {
-      password: dni,
+      password,
       firstName,
       lastName,
       isAdmin,
