@@ -4,6 +4,7 @@ const User = require('../model/user')
 const {authSecret} = require('../config')
 const isAuthorized = require('../lib/is-authorized')
 const asyncHandler = require('../lib/async-handler')
+const logger = require('../config/logger')
 
 router.post('/register', asyncHandler(async (req, res) => {
   const {username, email, password} = req.body
@@ -12,15 +13,13 @@ router.post('/register', asyncHandler(async (req, res) => {
   try {
     await user.save()
   } catch (error) {
-    console.error(`Problem registering user ${JSON.stringify({username, email})}`, error)
-    return res
-      .status(500)
-      .json({status: 500, message: error.message || error || ''})
+    const logMsg = `Problem registering user ${JSON.stringify({username, email})}. `
+    logger.error(logMsg, error)
+    error.message = "Ocurrió un problema en el registro. Por favor, intente nuevamente. "
+    throw error
   }
 
-  return res
-    .status(200)
-    .json({username, email})
+  res.json({username, email})
 }))
 
 router.post('/login', asyncHandler(async (req, res) => {
@@ -29,34 +28,32 @@ router.post('/login', asyncHandler(async (req, res) => {
   try {
     user = await User.findOne({username}).select('+password')
   } catch (error) {
-    console.error(`Problem looking for user ${username} in DB.`, error)
-    return res
-      .status(500)
-      .json({status: 500, error: 'Error de base de datos al iniciar sesion'})
+    const logMsg = `Problem looking for user ${username} in DB. `
+    logger.error(logMsg, error)
+    error.message = 'Ocurrió un problema al iniciar sesión. Por favor, intente nuevamente. '
+    throw error
   }
 
   if (!user) {
-    console.log(`Username not found: ${username}`)
-    return res
-      .status(401)
-      .json({status: 401, message: 'Usuario o contraseña incorrectos'})
+    logger.info(`Username not found: ${username}. `)
+    const error = new Error(`Usuario o contraseña incorrectos`)
+    error.status = 401
+    throw error
   }
 
-  let same
+  let isSamePassword
   try {
-    same = await user.checkPassword(password)
+    isSamePassword = await user.checkPassword(password)
   } catch (error) {
-    console.error('Unexpected error when checking user password', error)
-    return res
-      .status(500)
-      .json({status: 500, message: 'Error del servidor al validar las credenciales'})
+    logger.error('Unexpected error when checking user password. ', error)
+    throw new Error(`Ocurrió un problema en el servidor al validar las credenciales. Por favor, intente nuevamente. `)
   }
 
-  if (!same) {
-    console.log(`Incorrect password for user ${username}`)
-    return res
-      .status(401)
-      .json({status: 401, message: 'Usuario o contraseña incorrectos'})
+  if (!isSamePassword) {
+    logger.info(`Incorrect password for user ${username}`)
+    const error = new Error(`Usuario o contraseña incorrectos`)
+    error.status = 401
+    throw error
   }
 
   // Issue token
@@ -65,9 +62,9 @@ router.post('/login', asyncHandler(async (req, res) => {
     expiresIn: '60d'
   })
 
-  res
-    .status(200)
-    .json({token})
+  logger.info(`User login: ${username}`)
+
+  res.json({token})
 }))
 
 router.get('/checkToken', isAuthorized, (req, res) => {
