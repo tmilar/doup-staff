@@ -1,25 +1,30 @@
 const rTracer = require('cls-rtracer')
-const {createLogger, format: {combine, timestamp, printf}, transports} = require('winston');
+const {createLogger, format, transports} = require('winston');
+const {combine, timestamp, printf, errors, json, metadata} = format
 
 const morgan = require('morgan')
 const stripFinalNewline = require('strip-final-newline');
 
 // a custom format that outputs request id
-const rTracerFormat = printf((info) => {
+const customFormat = printf((info) => {
   const padding = info.padding && info.padding[info.level] || '';
-  const header = `${info.level}:${padding} ${info.timestamp}`
+  const header = `${info.level}:${padding} ${info.metadata.timestamp}`
 
   const rid = rTracer.id()
+  const message = `${info.message}${info.metadata.stack ? `\n${info.metadata.stack}` : ''}`
   return rid
-    ? `${header} [request-id:${rid}]: ${info.message}`
-    : `${header}: ${info.message}`
+    ? `${header} [request-id:${rid}]: ${message}`
+    : `${header}: ${message}`
 })
 
 // Setup logger
 const logger = createLogger({
   format: combine(
     timestamp(),
-    rTracerFormat
+    errors({stack: true}),
+    metadata(),
+    json(),
+    customFormat
   ),
   transports: [new transports.Console()],
 });
