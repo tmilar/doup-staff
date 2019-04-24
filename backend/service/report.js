@@ -1,15 +1,15 @@
+const moment = require('moment-timezone')
 const sendMail = require('../lib/send-mail')
 const User = require('../model/user')
 const {drive: {parentFolder}} = require('../config')
-const moment = require('moment-timezone')
 
 const subjectTemplate = ({username, firstName, lastName, site}) => `Reporte de ${firstName} ${lastName} (${username}), en ${site}.`
 const bodyTemplate = (date, {username}, previousLessons = [], currentLesson) => [
   'Hola, ',
   '',
-  `El usuario '${username}' ha indicado el ${moment(date).format("dddd, D [de] MMMM, [a las] HH:mm")}, que no recibió el espacio '${currentLesson.site}' en condiciones.`,
+  `El usuario '${username}' ha indicado el ${moment(date).format('dddd, D [de] MMMM, [a las] HH:mm')}, que no recibió el espacio '${currentLesson.site}' en condiciones.`,
   '',
-  previousLessons.length ?
+  previousLessons.length > 0 ?
     [
       'Las clases previas en esa fecha y espacio, fueron: ',
       '',
@@ -17,11 +17,10 @@ const bodyTemplate = (date, {username}, previousLessons = [], currentLesson) => 
         .map(({startDate, endDate, discipline, instructor: {firstName, lastName} = {}}) =>
           `\t* ${discipline} (por ${firstName} ${lastName}), de ${moment(startDate).format('HH:mm')} a ${moment(endDate).format('HH:mm')}.`)
         .join('\n')
-    ].join('\n')
-    :
+    ].join('\n') :
     'Es la primer clase del día en este espacio.',
   '',
-  `Se pueden verificar las fotos previas (subidas por sus compañeros anteriores), en: `,
+  'Se pueden verificar las fotos previas (subidas por sus compañeros anteriores), en: ',
   `https://drive.google.com/drive/u/0/folders/${parentFolder}`,
   '',
   'Gracias, ',

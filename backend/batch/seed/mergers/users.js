@@ -10,7 +10,7 @@ const trimStringValues = require('../util/trim-string-values')
 
 function _generateDefaultPassword(firstName) {
   const suffix = '123'
-  return `${firstName.toLowerCase()}${suffix}`;
+  return `${firstName.toLowerCase()}${suffix}`
 }
 
 async function saveUsers(userRows) {

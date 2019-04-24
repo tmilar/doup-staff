@@ -5,10 +5,10 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const rTracer = require('cls-rtracer')
 const db = require('./config/db')
 const googleClient = require('./client/google-client')
-const logger = require('./config/logger');
-const rTracer = require('cls-rtracer')
+const logger = require('./config/logger')
 
 const app = express()
 app.use(bodyParser.json())
@@ -19,7 +19,7 @@ app.use(cors({
 app.use(cookieParser())
 
 // Setup logs middleware
-app.use(logger.requests);
+app.use(logger.requests)
 app.use(rTracer.expressMiddleware())
 
 const http = server(app)
@@ -49,26 +49,25 @@ async function setup() {
     next({
       message: 'Route not found',
       status: 404,
-      level: 'warn',
-    });
-  });
+      level: 'warn'
+    })
+  })
 
   // Default Error handler
-  app.use((err, req, res, next) => {
+  app.use((error, req, res, next) => {
     if (res.headersSent) {
       return next(error)
     }
 
-    const {message, status = 500, level = 'error'} = err;
-    const log = `${logger.header(req)} ${status} ${message}`;
+    const {message, status = 500, level = 'error'} = error
+    const log = `${logger.header(req)} ${status} ${message}`
 
-    logger[level](log);
+    logger[level](log)
 
     res
       .status(status)
       .json({status, message})
-  });
-
+  })
 }
 
 function start() {

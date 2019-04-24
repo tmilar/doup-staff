@@ -7,7 +7,7 @@ const sendReport = require('../service/report')
 const asyncHandler = require('../lib/async-handler')
 
 moment.locale('es')
-moment.tz.setDefault("America/Argentina/Buenos_Aires");
+moment.tz.setDefault('America/Argentina/Buenos_Aires')
 
 function isValidDateParam(dateStr) {
   const dateParam = new Date(dateStr)
@@ -48,7 +48,7 @@ router.post('/', isAuthorized, asyncHandler(async (req, res) => {
   try {
     await sendReport(report)
   } catch (error) {
-    console.error(`Unexpected error when sending mail report from user '${user.username}'`, error)
+    console.error(`Unexpected error when sending mail report from user '${reportingUser.username}'`, error)
   }
 
   return res

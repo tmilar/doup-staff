@@ -10,7 +10,7 @@ router.get('/next', isAuthorized, asyncHandler(async (req, res) => {
   const {user: {_id}} = req
   const nextLesson = await Lesson.findNextForUser(_id)
 
-  if(!nextLesson) {
+  if (!nextLesson) {
     return res
       .status(204)
   }

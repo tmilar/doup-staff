@@ -18,7 +18,6 @@ const jwtClient = new google.auth.JWT(
   senderAccount
 )
 
-
 async function sendMail({to, subject, body}) {
   await jwtClient.authorize()
 
