@@ -9,6 +9,7 @@ const rTracer = require('cls-rtracer')
 const db = require('./config/db')
 const googleClient = require('./client/google-client')
 const logger = require('./config/logger')
+const {version} = require('./package')
 
 const app = express()
 app.use(bodyParser.json())
@@ -43,6 +44,9 @@ async function setup() {
   app.use('/user', user)
   app.use('/report', report)
   app.use('/lesson', lesson)
+
+  // Version endpoint
+  app.use('/version', (req, res) => res.json({version}))
 
   // No route found handler
   app.use((req, res, next) => {
