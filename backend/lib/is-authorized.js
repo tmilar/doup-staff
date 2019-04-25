@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const {authSecret} = require('../config')
 const User = require('../model/user')
+const logger = require('../config/logger')
 
 async function isAuthorized(req, res, next) {
   const token =
@@ -10,7 +11,7 @@ async function isAuthorized(req, res, next) {
     req.cookies.token
 
   if (!token || token === 'null') {
-    console.log('Unauthorized: No token provided.')
+    logger.info('Unauthorized: No token provided.')
     return res
       .status(401)
       .json({status: 401, message: 'El usuario no esta autorizado'})
@@ -20,7 +21,7 @@ async function isAuthorized(req, res, next) {
   try {
     decoded = await jwt.verify(token, authSecret)
   } catch (error) {
-    console.error('Unauthorized: Invalid token.')
+    logger.error('Unauthorized: Invalid token.')
     return res
       .status(401)
       .json({status: 401, message: 'La sesion expiro, por favor vuelva a ingresar'})
@@ -34,14 +35,14 @@ async function isAuthorized(req, res, next) {
   try {
     user = await User.findOne({username})
   } catch (error) {
-    console.error(`Authorization error: problem retrieving user ${username} from DB.`, error)
+    logger.error(`Authorization error: problem retrieving user ${username} from DB. `, error)
     return res
       .status(401)
       .json({status: 401, message: 'La sesion expiro, por favor vuelva a ingresar'})
   }
 
   if (!user) {
-    console.error(`Authorization error: could not find user ${username} in DB.`)
+    logger.error(`Authorization error: could not find user ${username} in DB.`)
     return res
       .status(401)
       .json({status: 401, message: 'El nombre de usuario es inválido, por favor vuelva a ingresar.'})

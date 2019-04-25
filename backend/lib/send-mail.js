@@ -8,6 +8,7 @@ const key = require('../secret/doup-staff-6a4c3ef6c6e3.json')
 
 const gmail = google.gmail({version: 'v1'})
 const {gmail: {senderAccount}} = require('../config')
+const logger = require('../config/logger')
 
 // TODO extract this config logic to 'config' or 'client/'
 const jwtClient = new google.auth.JWT(
@@ -35,7 +36,7 @@ async function sendMail({to, subject, body}) {
     `${body}`
   ].join('\n')
 
-  console.log(msg)
+  logger.verbose(msg)
   const safe = base64.escape(base64.encode(msg))
 
   return gmail.users.messages.send({

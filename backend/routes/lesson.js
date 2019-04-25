@@ -11,6 +11,7 @@ router.get('/next', isAuthorized, asyncHandler(async (req, res) => {
   const nextLesson = await Lesson.findNextForUser(_id)
 
   if (!nextLesson) {
+    logger.info("No next lesson found.")
     return res
       .status(204)
   }

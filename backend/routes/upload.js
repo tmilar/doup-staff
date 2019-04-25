@@ -2,6 +2,7 @@ const router = require('express').Router()
 const multer = require('multer')
 const multerDriveStorage = require('../lib/drive-storage')
 const isAuthorized = require('../lib/is-authorized')
+const logger = require('../config/logger')
 
 module.exports = jwtClient => {
   const upload = multer({
@@ -12,13 +13,11 @@ module.exports = jwtClient => {
 
   router.post('/', isAuthorized, upload.single(fieldName), (req, res) => {
     if (!req.file) {
-      console.error(`Error when trying to upload image from user ${req.username}`)
-      return res
-        .status(500)
-        .send({error: 'No se pudo subir la imagen. '})
+      logger.error(`Error when trying to upload image from user ${req.username}`)
+      throw new Error('No se pudo subir la imagen. ')
     }
 
-    console.log(`Successfully uploaded file: ${JSON.stringify(req.file)}`)
+    logger.info(`Successfully uploaded file: ${JSON.stringify(req.file)}`)
     res.json(req.file)
   })
 

@@ -5,6 +5,7 @@ const Report = require('../model/report')
 const Lesson = require('../model/lesson')
 const sendReport = require('../service/report')
 const asyncHandler = require('../lib/async-handler')
+const logger = require('../config/logger')
 
 moment.locale('es')
 moment.tz.setDefault('America/Argentina/Buenos_Aires')
@@ -24,7 +25,7 @@ router.post('/', isAuthorized, asyncHandler(async (req, res) => {
   const {username, user: reportingUser, body: {date: reportDate}} = req
 
   if (!isValidDateParam(reportDate)) {
-    console.error(`Invalid date param: ${reportDate}`)
+    logger.error(`Invalid date param: ${reportDate}`)
     return res
       .status(400)
       .json({status: 400, message: `Fecha inválida: '${reportDate}'`})
@@ -48,7 +49,7 @@ router.post('/', isAuthorized, asyncHandler(async (req, res) => {
   try {
     await sendReport(report)
   } catch (error) {
-    console.error(`Unexpected error when sending mail report from user '${reportingUser.username}'`, error)
+    logger.error(`Unexpected error when sending mail report from user '${reportingUser.username}'`, error)
   }
 
   return res

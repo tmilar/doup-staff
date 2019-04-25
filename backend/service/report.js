@@ -2,6 +2,7 @@ const moment = require('moment-timezone')
 const sendMail = require('../lib/send-mail')
 const User = require('../model/user')
 const {drive: {parentFolder}} = require('../config')
+const logger = require('../config/logger')
 
 const subjectTemplate = ({username, firstName, lastName, site}) => `Reporte de ${firstName} ${lastName} (${username}), en ${site}.`
 const bodyTemplate = (date, {username}, previousLessons = [], currentLesson) => [
@@ -33,22 +34,22 @@ async function sendReport({date, user: {username, firstName, lastName}, previous
 
   const admins = await User.find({isAdmin: true})
   if (!admins || admins.length === 0) {
-    console.error(`Can't send  ${date} - '${subject}': No valid admin users found in DB`)
+    logger.error(`Can't send  ${date} - '${subject}': No valid admin users found in DB`)
     return
   }
 
   const adminEmails = admins.map(({email}) => email)
   const to = adminEmails.join(', ')
   if (!to || to.length === 0) {
-    console.error(`Can't send  ${date} - '${subject}': No valid admin recipient emails retrieved from DB`)
+    logger.error(`Can't send  ${date} - '${subject}': No valid admin recipient emails retrieved from DB`)
     return
   }
 
-  console.log(`Sending report from ${username} (${firstName} ${lastName}) to admin emails: '${to}'`)
+  logger.info(`Sending report from ${username} (${firstName} ${lastName}) to admin emails: '${to}'`)
   try {
     await sendMail({subject, body, to})
   } catch (error) {
-    console.error(`Problem sending ${date} - '${subject}'.`, error)
+    logger.error(`Problem sending ${date} - '${subject}'.`, error)
   }
 }
 
