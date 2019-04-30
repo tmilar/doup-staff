@@ -1,9 +1,9 @@
 import React from 'react';
-import {Alert, Button, StyleSheet, View, Text, AsyncStorage} from 'react-native';
-import client from '../service/RequestClient'
+import {Alert, Button, StyleSheet, View, Text, AsyncStorage} from 'react-native'
 import moment from 'moment'
 import 'moment/locale/es'
 import 'moment-timezone'
+import client from '../service/RequestClient'
 
 moment.locale('es');
 moment.tz.setDefault("America/Argentina/Buenos_Aires");
@@ -138,14 +138,22 @@ export default class HomeScreen extends React.Component {
   }
 
   _maybeShowTurnStartButton = () => {
-    if (!this.state.isTurnStart) {
+    const {isTurnStart, nextLesson} = this.state
+
+    if (!isTurnStart) {
       return
     }
+
+    const canStartNextLesson = nextLesson &&
+      moment().isBetween(
+        moment(nextLesson.startDate).subtract(10, "minutes"),
+        moment(nextLesson.startDate).add(20, "minutes")
+      )
 
     return (
       <View>
         <View style={styles.actionButton}>
-          <Button title="Comenzar Turno" onPress={this._reviewPreviousTurn}/>
+          <Button title="Comenzar Turno" disabled={!canStartNextLesson} onPress={this._reviewPreviousTurn}/>
         </View>
       </View>
     )
