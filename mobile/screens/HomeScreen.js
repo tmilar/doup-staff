@@ -4,6 +4,7 @@ import moment from 'moment'
 import 'moment/locale/es'
 import 'moment-timezone'
 import client from '../service/RequestClient'
+import LessonInfoContainer from '../components/LessonInfoContainer'
 
 moment.locale('es');
 moment.tz.setDefault("America/Argentina/Buenos_Aires");
@@ -117,26 +118,6 @@ export default class HomeScreen extends React.Component {
     )
   }
 
-  _maybeShowNextLessonMessage = () => {
-    const upcomingLesson = this.state.isTurnStart ? 'Próxima clase' : 'Clase actual'
-
-    const nextLessonMessage = lesson => {
-      if (!lesson) {
-        return 'No se ha encontrado tu próxima clase.'
-      }
-
-      const {discipline, site, startDate, endDate} = lesson
-      const startStr = moment(startDate).calendar()
-      const endStr = moment(endDate).format("H:mm")
-
-      return `${upcomingLesson}: ${discipline}, en ${site}, ${startStr} - ${endStr}.`
-    }
-
-    return (
-      <Text style={styles.welcomeMessage}>{nextLessonMessage(this.state.nextLesson)}</Text>
-    )
-  }
-
   _maybeShowTurnStartButton = () => {
     const {isTurnStart, nextLesson} = this.state
 
@@ -175,7 +156,7 @@ export default class HomeScreen extends React.Component {
     return (
       <View style={styles.container}>
         {this._maybeShowWelcomeMessage()}
-        {this._maybeShowNextLessonMessage()}
+        <LessonInfoContainer/>
         {this._maybeShowTurnStartButton()}
         {this._maybeShowTurnEndButton()}
       </View>
