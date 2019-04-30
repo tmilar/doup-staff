@@ -1,13 +1,14 @@
 import React from 'react';
-import {Image} from 'react-native';
+import {AsyncStorage, Image} from 'react-native';
 import {createAppContainer, createStackNavigator, createSwitchNavigator} from 'react-navigation';
 
 import {Icon} from 'expo';
-import {AsyncStorage} from 'react-native';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
-import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import UploadScreen from '../screens/UploadScreen';
+import UpcomingLessonScreen from "../screens/UpcomingLessonScreen";
+import PreviousTurnsReportScreen from "../screens/PreviousTurnsReportScreen";
+import CurrentLessonScreen from "../screens/CurrentLessonScreen";
 
 const AuthStack = createStackNavigator({
   Login: LoginScreen
@@ -19,7 +20,10 @@ async function _signOutAsync(navigation) {
 }
 
 const AppStack = createStackNavigator({
-  Home: HomeScreen,
+  Home: UpcomingLessonScreen,
+  UpcomingLesson: UpcomingLessonScreen,
+  PreviousTurnsReport: PreviousTurnsReportScreen,
+  CurrentLesson: CurrentLessonScreen,
   Upload: UploadScreen
 }, {
   defaultNavigationOptions: ({navigation}) => ({
