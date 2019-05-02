@@ -118,7 +118,7 @@ export default class Uploader extends Component {
     return `${uploadTimeStr} - ${discipline}, '${site}' (${startTime} - ${endTime}) - ${username} (${firstName} ${lastName})`
   }
 
-  async tryUploadImage() {
+  tryUploadImage = async () => {
     const {image} = this.state
     if (!image) {
       Alert.alert('Error', 'No se seleccionó una imagen!')

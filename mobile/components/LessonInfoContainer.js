@@ -45,7 +45,7 @@ export default class LessonInfoContainer extends React.Component {
    * @returns {Promise<any>}
    * @private
    */
-  async _retrieveNextLesson() {
+  _retrieveNextLesson = async () => {
     // get or fetch lesson
     let nextLesson = JSON.parse(await AsyncStorage.getItem('nextLesson') || null)
 
