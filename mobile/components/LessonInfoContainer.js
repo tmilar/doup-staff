@@ -1,9 +1,13 @@
 import React from 'react';
-import {AsyncStorage, ActivityIndicator, View} from 'react-native'
+import {ActivityIndicator, AsyncStorage, View} from 'react-native'
 import LessonInfo from './LessonInfo'
 import client from "../service/RequestClient";
 
 export default class LessonInfoContainer extends React.Component {
+
+  static defaultProps = {
+    lessonHeader: ''
+  }
 
   state = {
     lesson: null,
@@ -47,8 +51,6 @@ export default class LessonInfoContainer extends React.Component {
       )
     }
 
-    const upcomingStr = new Date() > lesson.startDate ? 'Clase actual: ' : 'Próxima clase: '
-
-    return <LessonInfo header={upcomingStr} lesson={lesson}/>
+    return <LessonInfo header={this.props.lessonHeader} lesson={lesson}/>
   }
 }

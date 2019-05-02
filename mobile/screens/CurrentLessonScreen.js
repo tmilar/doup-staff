@@ -28,9 +28,10 @@ export default class CurrentLessonScreen extends React.Component {
   }
 
   render() {
+    const lessonHeaderStr = 'Clase actual: '
     return (
       <View style={styles.container}>
-        <LessonInfoContainer/>
+        <LessonInfoContainer lessonHeader={lessonHeaderStr} onLessonFetch={this.onLessonFetch}/>
         {this._turnEndButton()}
       </View>
     );

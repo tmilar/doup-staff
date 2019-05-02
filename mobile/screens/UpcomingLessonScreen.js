@@ -70,10 +70,11 @@ export default class UpcomingLessonScreen extends React.Component {
   }
 
   render() {
+    const lessonHeaderStr = 'Próxima clase: '
     return (
       <View style={styles.container}>
         {this._welcomeMessage()}
-        <LessonInfoContainer onLessonFetch={this._onNextLesson}/>
+        <LessonInfoContainer lessonHeader={lessonHeaderStr} onLessonFetch={this._onNextLesson}/>
         {this._turnStartButton()}
       </View>
     );
