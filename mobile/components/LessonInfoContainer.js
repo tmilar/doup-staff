@@ -2,6 +2,7 @@ import React from 'react';
 import {ActivityIndicator, AsyncStorage, View} from 'react-native'
 import LessonInfo from './LessonInfo'
 import client from "../service/RequestClient";
+import moment from "moment";
 
 export default class LessonInfoContainer extends React.Component {
 
@@ -30,8 +31,13 @@ export default class LessonInfoContainer extends React.Component {
     return nextLesson;
   }
 
-  async componentWillMount() {
-    this.setState({loading: true})
+  _isLessonExpired = (lesson) => {
+    let now = moment();
+    let lessonEnd = moment(lesson.endDate);
+    let lessonExpiration = moment(lessonEnd).add(30, "minutes")
+
+    return now.isAfter(lessonExpiration)
+  }
 
   /**
    * Retrieve the currently stored lesson, or fetch & retrieve the next one.
@@ -43,9 +49,9 @@ export default class LessonInfoContainer extends React.Component {
     // get or fetch lesson
     let nextLesson = JSON.parse(await AsyncStorage.getItem('nextLesson') || null)
 
-    const isLessonOver = (lesson) => new Date() > new Date(lesson.endDate)
+    let shouldRefreshNextLesson = !nextLesson || this._isLessonExpired(nextLesson)
 
-    if (!nextLesson || isLessonOver(nextLesson)) {
+    if (shouldRefreshNextLesson) {
       nextLesson = await this._fetchAndSaveNextLesson();
     }
 
