@@ -33,8 +33,8 @@ export default class UpcomingLessonScreen extends React.Component {
     )
   }
 
-  _onNextLesson = lesson => {
-    console.log("Fetched lesson: ", lesson)
+  _onLessonFetch = lesson => {
+    console.log("[UpcomingLessonScreen] Fetched lesson: ", lesson)
     this.setState({nextLesson: lesson})
   }
 
@@ -74,7 +74,7 @@ export default class UpcomingLessonScreen extends React.Component {
     return (
       <View style={styles.container}>
         {this._welcomeMessage()}
-        <LessonInfoContainer lessonHeader={lessonHeaderStr} onLessonFetch={this._onNextLesson}/>
+        <LessonInfoContainer lessonHeader={lessonHeaderStr} onLessonFetch={this._onLessonFetch}/>
         {this._turnStartButton()}
       </View>
     );

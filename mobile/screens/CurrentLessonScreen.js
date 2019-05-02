@@ -15,7 +15,7 @@ export default class CurrentLessonScreen extends React.Component {
   };
 
   _completeCurrentTurn = async () => {
-    const currentLesson = JSON.parse(await AsyncStorage.getItem('currentLesson'))
+    const {currentLesson} = this.state
     this._goToUploadScreen(currentLesson)
   }
 
@@ -27,11 +27,16 @@ export default class CurrentLessonScreen extends React.Component {
     )
   }
 
+  _onLessonFetch = lesson => {
+    console.log("[CurrentLessonScreen] Fetched lesson: ", lesson)
+    this.setState({currentLesson: lesson})
+  }
+
   render() {
     const lessonHeaderStr = 'Clase actual: '
     return (
       <View style={styles.container}>
-        <LessonInfoContainer lessonHeader={lessonHeaderStr} onLessonFetch={this.onLessonFetch}/>
+        <LessonInfoContainer lessonHeader={lessonHeaderStr} onLessonFetch={this._onLessonFetch}/>
         {this._turnEndButton()}
       </View>
     );

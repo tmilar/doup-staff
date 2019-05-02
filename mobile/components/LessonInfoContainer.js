@@ -6,6 +6,7 @@ import client from "../service/RequestClient";
 export default class LessonInfoContainer extends React.Component {
 
   static defaultProps = {
+    onLessonFetch: lesson => console.log("Fetched lesson... ", lesson),
     lessonHeader: ''
   }
 
@@ -36,7 +37,9 @@ export default class LessonInfoContainer extends React.Component {
       // fetch & save next lesson
       nextLesson = await this._fetchNextLesson()
     }
-    this.props.onLessonFetch && this.props.onLessonFetch(nextLesson)
+
+    this.props.onLessonFetch(nextLesson)
+
     this.setState({lesson: nextLesson, loading: false})
   }
 
