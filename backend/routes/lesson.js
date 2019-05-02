@@ -14,7 +14,7 @@ router.get('/next', isAuthorized, asyncHandler(async (req, res) => {
   if (!nextLesson) {
     logger.info('No next lesson found.')
     return res
-      .status(204)
+      .sendStatus(204)
   }
 
   res
