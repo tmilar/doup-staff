@@ -16,10 +16,15 @@ export default class LessonInfoContainer extends React.Component {
   }
 
   _fetchNextLesson = async () => {
-    const nextLesson = await client.sendRequest('/lesson/next')
+    return client.sendRequest('/lesson/next');
+  }
+
+  _fetchAndSaveNextLesson = async () => {
+    const nextLesson = await this._fetchNextLesson()
 
     // store in cache
     if (nextLesson) {
+      console.log("GET /lesson/next -> storing in cache 'nextLesson': ", nextLesson)
       await AsyncStorage.setItem('nextLesson', JSON.stringify(nextLesson))
     }
     return nextLesson;
@@ -28,18 +33,30 @@ export default class LessonInfoContainer extends React.Component {
   async componentWillMount() {
     this.setState({loading: true})
 
+  /**
+   * Retrieve the currently stored lesson, or fetch & retrieve the next one.
+   *
+   * @returns {Promise<any>}
+   * @private
+   */
+  async _retrieveNextLesson() {
     // get or fetch lesson
     let nextLesson = JSON.parse(await AsyncStorage.getItem('nextLesson') || null)
 
     const isLessonOver = (lesson) => new Date() > new Date(lesson.endDate)
 
     if (!nextLesson || isLessonOver(nextLesson)) {
-      // fetch & save next lesson
-      nextLesson = await this._fetchNextLesson()
+      nextLesson = await this._fetchAndSaveNextLesson();
     }
 
     this.props.onLessonFetch(nextLesson)
 
+    return nextLesson;
+  }
+
+  async componentWillMount() {
+    this.setState({loading: true})
+    let nextLesson = await this._retrieveNextLesson();
     this.setState({lesson: nextLesson, loading: false})
   }
 
