@@ -52,6 +52,7 @@ export default class LoginScreen extends Component {
       if (error.status === 401) {
         throw new Error('Usuario o contraseña inválidos, por favor intente nuevamente.')
       }
+      throw error
     }
   }
 
@@ -74,12 +75,12 @@ export default class LoginScreen extends Component {
     showLoading({text: 'Cargando...'});
     try {
       await this._doLogin();
-    } catch (e) {
+    } catch (error) {
       hideLoading();
-      console.log('Login error: ', e);
+      console.log('Login error: ', error);
       Alert.alert(
         'Error',
-        e.message || e
+        error.message || error
       );
       return;
     }

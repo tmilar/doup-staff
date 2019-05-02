@@ -17,7 +17,8 @@ class RequestClient {
    * @param requestOptions
    */
   sendRequest = async (url, requestOptions = {}) => {
-    url = apiUrl + url;
+    const requestUrl = apiUrl + url
+
     let request = {
       method: 'GET',
       headers: {
@@ -33,7 +34,14 @@ class RequestClient {
       this._ensureBodyPresent(requestOptions);
     }
     request = Object.assign(request, requestOptions);
-    let rawResponse = await fetch(url, request);
+    let rawResponse
+    try {
+      rawResponse = await fetch(requestUrl, request);
+    } catch (error) {
+      console.error("Request fetch error: ", error)
+      throw error
+    }
+    console.log(request.method, url, rawResponse.status)
     let responseBody = await this._parseResponse(rawResponse);
     await this._checkResponseStatus(rawResponse, responseBody);
     return responseBody;
