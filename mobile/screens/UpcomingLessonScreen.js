@@ -7,11 +7,13 @@ import LessonInfoContainer from '../components/LessonInfoContainer'
 
 moment.locale('es');
 moment.tz.setDefault("America/Argentina/Buenos_Aires");
+const _10_SECONDS_MILLIS = 1000 * 10
 
 export default class UpcomingLessonScreen extends React.Component {
 
   state = {
-    nextLesson: null
+    nextLesson: null,
+    canStartNextLesson: false
   }
 
   _retrieveFirstName = async () => {
@@ -26,6 +28,34 @@ export default class UpcomingLessonScreen extends React.Component {
     await this._retrieveFirstName()
   }
 
+  _checkCanStartNextLesson = () => {
+    const {nextLesson} = this.state
+
+    let canStartNextLesson = nextLesson &&
+      moment().isBetween(
+        moment(nextLesson.startDate).subtract(10, "minutes"),
+        moment(nextLesson.startDate).add(20, "minutes")
+      );
+
+    this.setState({canStartNextLesson})
+    return canStartNextLesson
+  }
+
+  _startCheckLessonStartInterval = () => {
+    this.checkLessonStartInterval = setInterval(
+      () => this._checkCanStartNextLesson(),
+      _10_SECONDS_MILLIS
+    );
+  }
+
+  componentDidMount() {
+    this._startCheckLessonStartInterval();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.checkLessonStartInterval);
+  }
+
   _welcomeMessage = () => {
     const message = `Hola${this.state.firstName ? `, ${this.state.firstName}` : ''}!`
     return (
@@ -35,31 +65,22 @@ export default class UpcomingLessonScreen extends React.Component {
 
   _onLessonFetch = lesson => {
     console.log("[UpcomingLessonScreen] Fetched lesson: ", lesson)
-    this.setState({nextLesson: lesson})
+    this.setState({nextLesson: lesson}, this._checkCanStartNextLesson)
   }
 
   _reviewPreviousTurns = () => {
-    Alert.alert("atenti", "Navegando al reporte del turno previo...")
     this.props.navigation.navigate('PreviousTurnsReport')
   }
 
   _startNextLesson = async () => {
-    //TODO check if last turns are same user => in that case skip review
+    //TODO check if last turns (lesson.site) are same for the user => in that case skip review (or if is same SITE).
     this._reviewPreviousTurns()
-    const {nextLesson} = this.state
-    await AsyncStorage.setItem('currentLesson', JSON.stringify(nextLesson))
   }
 
   _turnStartButton = () => {
-    const {nextLesson} = this.state
+    const {canStartNextLesson} = this.state;
 
-    const canStartNextLesson = nextLesson &&
-      moment().isBetween(
-        moment(nextLesson.startDate).subtract(10, "minutes"),
-        moment(nextLesson.startDate).add(20, "minutes")
-      )
-
-    // TODO if lesson has already started >20 minutes ago, navigate to currentlesson screen
+    // TODO if lesson startTime is over >20 minutes ago, navigate to currentlesson screen
     return (
       <View>
         <View style={styles.actionButton}>
