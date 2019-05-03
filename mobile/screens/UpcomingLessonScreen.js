@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, AsyncStorage, Button, StyleSheet, Text, View} from 'react-native'
+import {AsyncStorage, Button, StyleSheet, Text, View} from 'react-native'
 import moment from 'moment'
 import 'moment/locale/es'
 import 'moment-timezone'
@@ -7,7 +7,6 @@ import LessonInfoContainer from '../components/LessonInfoContainer'
 
 moment.locale('es');
 moment.tz.setDefault("America/Argentina/Buenos_Aires");
-const _10_SECONDS_MILLIS = 1000 * 10
 
 export default class UpcomingLessonScreen extends React.Component {
 
@@ -28,32 +27,43 @@ export default class UpcomingLessonScreen extends React.Component {
     await this._retrieveFirstName()
   }
 
-  _checkCanStartNextLesson = () => {
-    const {nextLesson} = this.state
-
-    let canStartNextLesson = nextLesson &&
-      moment().isBetween(
-        moment(nextLesson.startDate).subtract(10, "minutes"),
-        moment(nextLesson.startDate).add(20, "minutes")
-      );
-
-    this.setState({canStartNextLesson})
-    return canStartNextLesson
+  _setUpcomingLessonCanStart = () => {
+    this.setState({canStartNextLesson: true})
   }
 
-  _startCheckLessonStartInterval = () => {
-    this.checkLessonStartInterval = setInterval(
-      () => this._checkCanStartNextLesson(),
-      _10_SECONDS_MILLIS
-    );
+  _checkOrScheduleCanLessonStart = () => {
+    const {nextLesson} = this.state
+
+    if (!nextLesson) {
+      return
+    }
+    // lesson can start 10 minutes before start date.
+    const canLessonStartTime = moment(nextLesson.startDate).subtract(10, "minutes")
+    const now = moment()
+
+    if (now.isBefore(canLessonStartTime)) {
+      const remainingTime = canLessonStartTime.diff(now)
+      console.log(`Scheduling lesson can start in ${remainingTime} ms`)
+
+      this.canLessonStartTimeout = setTimeout(
+        () => {
+          console.log("Next lesson can now be started. ")
+          this._setUpcomingLessonCanStart()
+        },
+        remainingTime
+      )
+    } else {
+      console.log("Next lesson is already able to be started. ")
+      this._setUpcomingLessonCanStart()
+    }
   }
 
   componentDidMount() {
-    this._startCheckLessonStartInterval();
+    this._checkOrScheduleCanLessonStart();
   }
 
   componentWillUnmount() {
-    clearInterval(this.checkLessonStartInterval);
+    clearTimeout(this.canLessonStartTimeout)
   }
 
   _welcomeMessage = () => {
@@ -65,7 +75,7 @@ export default class UpcomingLessonScreen extends React.Component {
 
   _onLessonFetch = lesson => {
     console.log("[UpcomingLessonScreen] Fetched lesson: ", lesson)
-    this.setState({nextLesson: lesson}, this._checkCanStartNextLesson)
+    this.setState({nextLesson: lesson}, this._checkOrScheduleCanLessonStart)
   }
 
   _reviewPreviousTurns = () => {
