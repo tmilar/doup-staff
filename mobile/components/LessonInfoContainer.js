@@ -53,7 +53,7 @@ export default class LessonInfoContainer extends React.Component {
       console.log("Retrieved 'nextLesson' from cache. ")
     }
 
-    let isLessonExpired = this._isLessonExpired(nextLesson)
+    let isLessonExpired = nextLesson && this._isLessonExpired(nextLesson)
     let shouldRefreshNextLesson = !nextLesson || isLessonExpired
 
     if (shouldRefreshNextLesson) {
