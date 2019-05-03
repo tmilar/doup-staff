@@ -3,7 +3,7 @@ import {AsyncStorage, Image} from 'react-native';
 import {createAppContainer, createStackNavigator, createSwitchNavigator} from 'react-navigation';
 
 import {Icon} from 'expo';
-import AuthLoadingScreen from '../screens/AuthLoadingScreen';
+import LoadingScreen from '../screens/LoadingScreen';
 import LoginScreen from '../screens/LoginScreen';
 import UploadScreen from '../screens/UploadScreen';
 import UpcomingLessonScreen from "../screens/UpcomingLessonScreen";
@@ -60,14 +60,16 @@ const AppNavigation = createSwitchNavigator({
 });
 
 export default createAppContainer(createSwitchNavigator({
+    // data loading
+    Loading: LoadingScreen,
+
     // authentication
-    AuthLoading: AuthLoadingScreen,
     Auth: AuthStack,
 
     // app navigation
     App: AppNavigation
   },
   {
-    initialRouteName: 'AuthLoading'
+    initialRouteName: 'Loading'
   }
 ));
