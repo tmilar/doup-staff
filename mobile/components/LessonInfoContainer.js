@@ -1,8 +1,7 @@
 import React from 'react';
-import {ActivityIndicator, AsyncStorage, View, Alert} from 'react-native'
+import {ActivityIndicator, Alert, View} from 'react-native'
 import LessonInfo from './LessonInfo'
-import client from "../service/RequestClient";
-import moment from 'moment-timezone'
+import LessonService from "../service/LessonService"
 
 export default class LessonInfoContainer extends React.Component {
 
@@ -16,64 +15,11 @@ export default class LessonInfoContainer extends React.Component {
     loading: false
   }
 
-  _fetchNextLesson = async () => {
-    return client.sendRequest('/lesson/next');
-  }
-
-  _fetchAndSaveNextLesson = async () => {
-    const nextLesson = await this._fetchNextLesson()
-    console.log("Next lesson: ", nextLesson)
-
-    // store result in cache
-    if (nextLesson) {
-      console.log("storing 'nextLesson' in cache.")
-      await AsyncStorage.setItem('nextLesson', JSON.stringify(nextLesson))
-    }
-    return nextLesson;
-  }
-
-  _isLessonExpired = (lesson) => {
-    let now = moment();
-    let lessonEnd = moment(lesson.endDate);
-    let lessonExpiration = moment(lessonEnd).add(30, "minutes")
-
-    return now.isAfter(lessonExpiration)
-  }
-
-  /**
-   * Retrieve the currently stored lesson, or fetch & retrieve the next one.
-   *
-   * @returns {Promise<any>}
-   * @private
-   */
-  _retrieveNextLesson = async () => {
-    // get or fetch lesson
-    let nextLesson = JSON.parse(await AsyncStorage.getItem('nextLesson') || null)
-    if(nextLesson) {
-      console.log("Retrieved 'nextLesson' from cache. ")
-    }
-
-    let isLessonExpired = nextLesson && this._isLessonExpired(nextLesson)
-    let shouldRefreshNextLesson = !nextLesson || isLessonExpired
-
-    if (shouldRefreshNextLesson) {
-      if(isLessonExpired) {
-        console.log("Current lesson expired, retrieving the next one. ")
-      } else {
-        console.log("No next lesson set, retrieving the next one.")
-      }
-      nextLesson = await this._fetchAndSaveNextLesson();
-    }
-
-    this.props.onLessonFetch(nextLesson)
-
-    return nextLesson;
-  }
-
   async componentWillMount() {
     this.setState({loading: true})
     try {
-      const nextLesson = await this._retrieveNextLesson();
+      const nextLesson = await LessonService.retrieveNextLesson()
+      this.props.onLessonFetch(nextLesson)
       this.setState({lesson: nextLesson, loading: false})
     } catch (error) {
       console.error("Error when retrieving next lesson...", error)
