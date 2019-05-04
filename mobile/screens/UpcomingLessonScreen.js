@@ -79,7 +79,9 @@ export default class UpcomingLessonScreen extends React.Component {
   }
 
   _reviewPreviousTurns = () => {
-    this.props.navigation.navigate('PreviousTurnsReport')
+    this.props.navigation.navigate('PreviousTurnsReport', {
+      lesson: this.state.nextLesson
+    })
   }
 
   _startNextLesson = async () => {

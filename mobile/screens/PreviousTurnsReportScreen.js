@@ -1,5 +1,7 @@
 import React from 'react';
 import {Alert, StyleSheet, View} from 'react-native'
+import LessonService from "../service/LessonService";
+
 import client from "../service/RequestClient";
 
 export default class PreviousTurnsReportScreen extends React.Component {
@@ -15,10 +17,9 @@ export default class PreviousTurnsReportScreen extends React.Component {
     })
   }
 
-  _startTurn = async ({report}) => {
+  _handleReport = async report => {
     let promptTitle, promptMessage, actionMessage
-
-    let nextAction = () => this.props.navigation.navigate('CurrentLesson')
+    let isSendSuccessful = true
 
     if (report) {
       try {
@@ -32,7 +33,7 @@ export default class PreviousTurnsReportScreen extends React.Component {
         promptTitle = 'Error'
         promptMessage = 'Error de comunicación con el servidor. \nPor favor contacta a la administración!'
         actionMessage = 'OK.'
-        nextAction = () => this.props.navigation.goBack()
+        isSendSuccessful = false
       }
     } else {
       promptTitle = 'Gracias'
@@ -40,10 +41,44 @@ export default class PreviousTurnsReportScreen extends React.Component {
       actionMessage = '¡Sí!'
     }
 
-    Alert.alert(promptTitle, promptMessage, [{
+    return new Promise((resolve, reject) => Alert.alert(promptTitle, promptMessage, [{
       text: actionMessage,
-      onPress: nextAction
-    }])
+      onPress: () => isSendSuccessful ? resolve() : reject()
+    }]))
+  }
+
+  _startTurn = async ({report}) => {
+    try {
+      await this._handleReport(report)
+    } catch (error) {
+      console.log("[PreviousTurnReportScreen] Error when handling report, going back.", error)
+      this.props.navigation.goBack()
+    }
+
+    const lesson = this.props.navigation.getParam('lesson', null)
+
+    if (!lesson) {
+      console.error("[PreviousTurnReportScreen] No 'lesson' param in navigation props, going back.")
+      this.props.navigation.goBack()
+      return
+    }
+
+    try {
+      const startedLesson = await LessonService.startNextLesson(lesson)
+      console.log(`[PreviousTurnReportScreen] Lesson started at time ${startedLesson.actualStartDate}`)
+    } catch (error) {
+      console.error("[PreviousTurnReportScreen] Could not start next lesson. ", error)
+      Alert.alert("Ups...",
+        `No se pudo comenzar la clase: ${error.message} (${error.status}) \nPor favor, ¡avisa a la administración!`,
+        [{
+          text: 'OK',
+          onPress: () => this.props.navigation.goBack()
+        }]
+      )
+      return
+    }
+
+    this.props.navigation.navigate('CurrentLesson')
   }
 
   componentWillMount() {
@@ -62,7 +97,7 @@ export default class PreviousTurnsReportScreen extends React.Component {
   }
 
   render() {
-    return (<View style={styles.container}/>)
+    return <View style={styles.container}/>
   }
 }
 
