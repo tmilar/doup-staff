@@ -38,7 +38,7 @@ class RequestClient {
     try {
       rawResponse = await fetch(requestUrl, request);
     } catch (error) {
-      console.error("Request fetch error: ", error)
+      console.log("Request fetch error: ", error)
       throw error
     }
     console.log(request.method, url, rawResponse.status)

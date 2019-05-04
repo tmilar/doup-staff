@@ -59,16 +59,26 @@ class LessonService {
    * @private
    */
   _fetchAndSaveNextLesson = async () => {
-    const nextLesson = await this._fetchNextLesson()
-    console.log("[LessonService] Fetched next lesson:", nextLesson)
+    let nextLesson
+
+    try {
+      nextLesson = await this._fetchNextLesson()
+      console.log("[LessonService] Fetched next lesson:", nextLesson)
+    } catch (error) {
+      console.error("Could not fetch next lesson", error)
+    }
 
     // store result in cache
     if (nextLesson) {
       console.log("[LessonService] storing fetched 'nextLesson' in cache. ")
       await AsyncStorage.setItem('nextLesson', JSON.stringify(nextLesson))
     } else {
-      console.log("[LessonService] no next lesson fetched, removing 'nextLesson' from cache. ")
-      await AsyncStorage.removeItem('nextLesson')
+      let logMsg = "[LessonService] no next lesson fetched"
+      if(await AsyncStorage.getItem('nextLesson')) {
+        logMsg += ", removing 'nextLesson' from cache."
+        await AsyncStorage.removeItem('nextLesson')
+      }
+      console.log(logMsg)
     }
     return nextLesson;
   }
