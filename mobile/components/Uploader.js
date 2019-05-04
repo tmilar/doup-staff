@@ -32,8 +32,8 @@ export default class Uploader extends Component {
     }
 
     return (
-      <View style={styles.maybeRenderContainer}>
-        <View style={styles.maybeRenderImageContainer}>
+      <View style={styles.imageViewContainer}>
+        <View style={styles.imageContainer}>
           <Image source={{uri: image}} style={styles.maybeRenderImage}/>
         </View>
 
@@ -43,17 +43,16 @@ export default class Uploader extends Component {
   };
 
   _maybeRenderImageActionButtons = () => {
-    const {image} = this.state
+    const {image, uploaded} = this.state
     if (!image) {
       return
     }
     return (
       <View style={{height: 40, width: '80%', marginTop: 20}}>
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-          {!this.state.uploaded && <Button title="Subir" onPress={() => this.tryUploadImage()}/>}
-          {this.state.uploaded && <Button title="Listo" onPress={() => this.props.onGoBack()}/>}
+          {!uploaded && <Button title="Subir" onPress={this.tryUploadImage}/>}
+          {uploaded && <Button title="Listo" onPress={this.props.onFinish}/>}
         </View>
-
       </View>
     )
   }
@@ -67,7 +66,7 @@ export default class Uploader extends Component {
       await new Promise(resolve => {
         Alert.alert(
           "¡Ups!",
-          'Es necesario autorizar a la app para tomar fotos.',
+          'Es necesario autorizar la cámara y la galería para que la app pueda tomar y subir fotos.',
           [{
             text: 'OK',
             onPress: resolve
@@ -84,7 +83,7 @@ export default class Uploader extends Component {
       return
     }
 
-    this.setState({uploaded: false})
+    await new Promise(resolve => this.setState({uploaded: false}, resolve))
 
     let pickerResult = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -97,6 +96,7 @@ export default class Uploader extends Component {
 
   _handleImagePicked = async ({uri: image, cancelled}) => {
     if (cancelled) {
+      console.log("[Uploader] Cancelled image pick.")
       return
     }
 
@@ -132,13 +132,15 @@ export default class Uploader extends Component {
     try {
       this.props.onUploadStart()
       uploadResponse = await uploadImageAsync(image, uploadName)
-      this.setState({uploaded: true})
-    } catch (e) {
-      console.log({uploadResponse});
-      console.log({e});
-      Alert.alert(`Error`,`No se pudo subir su imagen, por favor intente nuevamente. \n${JSON.stringify(e)}`);
-    } finally {
+      await new Promise(resolve =>
+        this.setState({uploaded: true}, resolve)
+      )
       await this.props.onUploadEnd()
+    } catch (error) {
+      console.log({uploadResponse});
+      console.log({e: error});
+      Alert.alert(`Error`,`No se pudo subir su imagen, por favor intente nuevamente. \n${JSON.stringify(error)}`);
+      await this.props.onUploadEnd(error)
     }
   }
 
@@ -148,7 +150,7 @@ export default class Uploader extends Component {
     }
 
     return (
-      <Text style={styles.maybeRenderImageText}>
+      <Text style={styles.imageThanksText}>
         {'¡Gracias por tu aporte!'}
       </Text>
     )
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center'
   },
-  maybeRenderContainer: {
+  imageViewContainer: {
     borderRadius: 3,
     elevation: 2,
     marginTop: 30,
@@ -195,16 +197,17 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     width: 300
   },
-  maybeRenderImageContainer: {
+  imageContainer: {
     borderTopLeftRadius: 3,
     borderTopRightRadius: 3,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    backgroundColor: '#e1e4e8'
   },
   maybeRenderImage: {
     height: 300,
     width: 300
   },
-  maybeRenderImageText: {
+  imageThanksText: {
     paddingHorizontal: 10,
     paddingVertical: 10,
     textAlign: 'center',

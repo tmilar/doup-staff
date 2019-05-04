@@ -1,6 +1,7 @@
 import React from 'react';
 import {AsyncStorage, Button, StyleSheet, View} from "react-native";
 import LessonInfoContainer from "../components/LessonInfoContainer";
+import LessonService from '../service/LessonService';
 
 export default class CurrentLessonScreen extends React.Component {
 
@@ -8,8 +9,14 @@ export default class CurrentLessonScreen extends React.Component {
     this.props.navigation.navigate('Upload', {
       lesson,
       onFinish: async () => {
-        // TODO switch / replace?? since we going back to beginning
-        this.props.navigation.navigate('UpcomingLesson')
+        const {currentLesson} = this.state
+
+        if(!currentLesson) {
+          console.error("No current lesson in state! Can't properly finish")
+          return
+        }
+
+        this.props.navigation.navigate('App')
       }
     });
   };

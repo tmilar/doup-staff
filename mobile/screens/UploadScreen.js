@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {ActivityIndicator, Dimensions, StyleSheet, View} from 'react-native';
 
 import Uploader from '../components/Uploader';
+import {showToast} from "react-native-notifyer";
 
 export default class UploadScreen extends Component {
 
@@ -28,10 +29,21 @@ export default class UploadScreen extends Component {
     this.toggleLoading()
   }
 
-  onUploadEnd = async () => {
-    const onFinish = this.props.navigation.getParam('onFinish', async () => null)
-    await onFinish()
+  onUploadEnd = error => {
     this.toggleLoading()
+    if (error) {
+      showToast("Error en la subida")
+      return
+    }
+    showToast("Subida exitosa")
+  }
+
+  onFinish = async () => {
+    console.log("[UploadScreen] Finished uploading. ")
+    const onFinish = this.props.navigation.getParam('onFinish',
+      () => console.log("[UploadScreen] DEFAULT - Upload pics finished.")
+    )
+    return onFinish()
   }
 
   render() {
@@ -42,7 +54,8 @@ export default class UploadScreen extends Component {
           <Uploader lesson={currentLesson}
                     onUploadStart={this.onUploadStart}
                     onUploadEnd={this.onUploadEnd}
-                    onGoBack={() => this.props.navigation.goBack()}
+                    onFinish={this.onFinish}
+                    onGoBack={this.props.navigation.goBack}
           />
         </View>
         {this._maybeRenderUploadingOverlay()}
