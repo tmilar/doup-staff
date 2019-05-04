@@ -6,7 +6,8 @@ const LessonsSchema = new mongoose.Schema({
   endDate: {type: Date, required: true},
   site: {type: String, required: true},
   discipline: {type: String, required: true},
-  actualStartDate: Date
+  actualStartDate: Date,
+  actualEndDate: Date
 })
 
 LessonsSchema.index({instructor: 1, startDate: 1, endDate: 1, site: 1, discipline: 1}, {unique: true})
