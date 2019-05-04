@@ -26,6 +26,24 @@ class LessonService {
     return nextLesson;
   }
 
+  startNextLesson = async lesson => {
+    const startedLesson = await client.sendRequest(`/lesson/${lesson._id}/start`, {
+      method: 'POST'
+    })
+
+    // update stored lesson
+    await AsyncStorage.setItem('nextLesson', JSON.stringify(startedLesson))
+
+    return startedLesson
+  }
+
+  /**
+   * Check if lesson is expired (current time is more than *30* minutes after end date).
+   *
+   * @param lesson
+   * @returns {*}
+   * @private
+   */
   _isLessonExpired = lesson => {
     const now = moment();
     const lessonEnd = moment(lesson.endDate);
@@ -34,18 +52,33 @@ class LessonService {
     return now.isAfter(lessonExpiration)
   }
 
+  /**
+   * Fetch next lesson from server and store in cache
+   *
+   * @returns {Promise<*>}
+   * @private
+   */
   _fetchAndSaveNextLesson = async () => {
     const nextLesson = await this._fetchNextLesson()
     console.log("[LessonService] Fetched next lesson:", nextLesson)
 
     // store result in cache
     if (nextLesson) {
-      console.log("[LessonService] storing 'nextLesson' in cache. ")
+      console.log("[LessonService] storing fetched 'nextLesson' in cache. ")
       await AsyncStorage.setItem('nextLesson', JSON.stringify(nextLesson))
+    } else {
+      console.log("[LessonService] no next lesson fetched, removing 'nextLesson' from cache. ")
+      await AsyncStorage.removeItem('nextLesson')
     }
     return nextLesson;
   }
 
+  /**
+   * Fetch next lesson from server.
+   *
+   * @returns {Promise<*>}
+   * @private
+   */
   _fetchNextLesson = async () => {
     return client.sendRequest('/lesson/next');
   }
