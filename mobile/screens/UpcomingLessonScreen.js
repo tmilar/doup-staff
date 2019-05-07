@@ -8,6 +8,7 @@ import LessonService from '../service/LessonService'
 
 moment.locale('es');
 moment.tz.setDefault("America/Argentina/Buenos_Aires");
+const MAX_TIMEOUT_MILLIS = moment.duration(5, 'minutes').asMilliseconds();
 
 export default class UpcomingLessonScreen extends React.Component {
 
@@ -28,8 +29,8 @@ export default class UpcomingLessonScreen extends React.Component {
     await this._retrieveFirstName()
   }
 
-  _setUpcomingLessonCanStart = () => {
-    this.setState({canStartNextLesson: true})
+  _setUpcomingLessonCanStart = (canStartNextLesson = true) => {
+    this.setState({canStartNextLesson})
   }
 
   _checkOrScheduleCanLessonStart = () => {
@@ -38,24 +39,56 @@ export default class UpcomingLessonScreen extends React.Component {
     if (!nextLesson) {
       return
     }
-    // lesson can start 10 minutes before start date.
-    const canLessonStartTime = moment(nextLesson.startDate).add(LessonService.LESSON_TIME_TOLERANCE.START.MIN)
+
     const now = moment()
+    const canLessonStartMinTime = moment(nextLesson.startDate).add(LessonService.LESSON_TIME_TOLERANCE.START.MIN)
+    const canLessonStartMaxTime = moment(nextLesson.startDate).add(LessonService.LESSON_TIME_TOLERANCE.START.MAX)
 
-    if (now.isBefore(canLessonStartTime)) {
-      const remainingTime = canLessonStartTime.diff(now)
-      console.log(`Scheduling lesson can start in ${remainingTime} ms`)
+    const lessonCanStartAction = () => this._setUpcomingLessonCanStart()
+    const lessonCanNotStartAction = () => {
+      this._setUpcomingLessonCanStart(false)
+      this.props.navigation.navigate('CurrentLesson')
+    }
 
-      this.canLessonStartTimeout = setTimeout(
-        () => {
-          console.log("Next lesson can now be started. ")
-          this._setUpcomingLessonCanStart()
-        },
-        remainingTime
-      )
-    } else {
+    // check & set if can now be started
+    if (now.isBetween(canLessonStartMinTime, canLessonStartMaxTime, null, '[]')) {
       console.log("Next lesson is already able to be started. ")
-      this._setUpcomingLessonCanStart()
+      lessonCanStartAction()
+    }
+
+    // check & schedule for can start time
+    if (now.isBefore(canLessonStartMinTime)) {
+      const remainingStartTime = canLessonStartMinTime.diff(now)
+      if (remainingStartTime < MAX_TIMEOUT_MILLIS) {
+        console.log(`Scheduling lesson can start in ${remainingStartTime} ms`)
+        this.canLessonStartTimeout = setTimeout(
+          () => {
+            console.log("Next lesson can now be started. ")
+            lessonCanStartAction()
+          },
+          remainingStartTime
+        )
+      }
+    }
+
+    // check & schedule for can start stop time
+    if (now.isBefore(canLessonStartMaxTime)) {
+      const remainingStopTime = canLessonStartMaxTime.diff(now)
+      if (remainingStopTime < MAX_TIMEOUT_MILLIS) {
+        console.log(`Scheduling lesson can no longer be started in ${remainingStopTime} ms`)
+        this.expireLessonStartTimeout = setTimeout(
+          () => {
+            console.log("Next lesson can no longer be started. ")
+            lessonCanNotStartAction()
+          },
+          remainingStopTime
+        )
+      }
+    }
+
+
+    if (now.isAfter(canLessonStartMaxTime)) {
+      lessonCanNotStartAction()
     }
   }
 
@@ -65,6 +98,7 @@ export default class UpcomingLessonScreen extends React.Component {
 
   componentWillUnmount() {
     clearTimeout(this.canLessonStartTimeout)
+    clearTimeout(this.expireLessonStartTimeout)
   }
 
   _welcomeMessage = () => {
