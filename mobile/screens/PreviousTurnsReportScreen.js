@@ -1,6 +1,7 @@
 import React from 'react';
 import {Alert, StyleSheet, View} from 'react-native'
 import LessonService from "../service/LessonService";
+import {showLoading, hideLoading} from 'react-native-notifyer';
 
 import client from "../service/RequestClient";
 
@@ -64,9 +65,12 @@ export default class PreviousTurnsReportScreen extends React.Component {
     }
 
     try {
+      showLoading({text: 'Cargando...'});
       const startedLesson = await LessonService.startNextLesson(lesson)
       console.log(`[PreviousTurnReportScreen] Lesson started at time ${startedLesson.actualStartDate}`)
+      hideLoading()
     } catch (error) {
+      hideLoading()
       console.error("[PreviousTurnReportScreen] Could not start next lesson. ", error)
       Alert.alert("Ups...",
         `No se pudo comenzar la clase: ${error.message} (${error.status}) \nPor favor, ¡avisa a la administración!`,

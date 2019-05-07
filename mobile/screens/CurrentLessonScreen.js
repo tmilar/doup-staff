@@ -63,9 +63,13 @@ export default class CurrentLessonScreen extends React.Component {
         }
 
         try {
+          showLoading({text: 'Cargando...'});
           const {actualEndDate} = await LessonService.finishLesson(currentLesson)
+          hideLoading()
           console.log(`[CurrentLessonScreen] Lesson finished at ${actualEndDate}`)
+          Alert.alert("¡Listo!", "Clase finalizada con éxito. \n¡Hasta la próxima! \ud83d\udc4b")
         } catch (error) {
+          hideLoading()
           console.error("Problem sending finish lesson request", error)
           Alert.alert("¡Ups!", "Ocurrió un problema al finalizar tu clase. Por favor, vuelve a intentarlo.")
           return
