@@ -4,6 +4,7 @@ import moment from 'moment'
 import 'moment/locale/es'
 import 'moment-timezone'
 import LessonInfoContainer from '../components/LessonInfoContainer'
+import LessonService from '../service/LessonService'
 
 moment.locale('es');
 moment.tz.setDefault("America/Argentina/Buenos_Aires");
@@ -38,7 +39,7 @@ export default class UpcomingLessonScreen extends React.Component {
       return
     }
     // lesson can start 10 minutes before start date.
-    const canLessonStartTime = moment(nextLesson.startDate).subtract(10, "minutes")
+    const canLessonStartTime = moment(nextLesson.startDate).add(LessonService.LESSON_TIME_TOLERANCE.START.MIN)
     const now = moment()
 
     if (now.isBefore(canLessonStartTime)) {

@@ -4,6 +4,17 @@ import client from "./RequestClient";
 
 class LessonService {
 
+  LESSON_TIME_TOLERANCE = {
+    START: {
+      MIN: moment.duration(-10, 'minutes'),
+      MAX: moment.duration(20, 'minutes')
+    },
+    END: {
+      MIN: moment.duration(-10, 'minutes'),
+      MAX: moment.duration(15, 'minutes')
+    }
+  }
+
   retrieveNextLesson = async () => {
     // get or fetch lesson
     let nextLesson = JSON.parse(await AsyncStorage.getItem('nextLesson') || null)
@@ -57,7 +68,7 @@ class LessonService {
    */
   _isLessonExpired = lesson => {
     const now = moment();
-    const lessonExpiration = moment(lesson.endDate).add(30, "minutes")
+    const lessonExpiration = moment(lesson.endDate).add((this.LESSON_TIME_TOLERANCE.END.MAX))
     const isLessonOver = !!lesson.actualEndDate
 
     return isLessonOver || now.isAfter(lessonExpiration)
@@ -73,7 +84,7 @@ class LessonService {
    */
   isUpcoming = lesson => {
     const now = moment()
-    const lessonStartMaxLimit = moment(lesson.endDate).add(20, "minutes")
+    const lessonStartMaxLimit = moment(lesson.startDate).add(this.LESSON_TIME_TOLERANCE.START.MAX)
     const alreadyStarted = !!lesson.actualStartDate
 
     return !alreadyStarted && now.isBefore(lessonStartMaxLimit)
@@ -88,8 +99,8 @@ class LessonService {
    */
   isCurrent = lesson => {
     const now = moment()
-    const lessonStartMaxLimit = moment(lesson.startDate).add(20, 'minutes')
-    const lessonEndMaxLimit = moment(lesson.startDate).add(15, 'minutes')
+    const lessonStartMaxLimit = moment(lesson.startDate).add(this.LESSON_TIME_TOLERANCE.START.MAX)
+    const lessonEndMaxLimit = moment(lesson.startDate).add(this.LESSON_TIME_TOLERANCE.END.MAX)
     const alreadyFinished = !!lesson.actualEndDate
     const alreadyStarted = !!lesson.actualStartDate
 
