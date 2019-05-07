@@ -25,7 +25,7 @@ export default class CurrentLessonScreen extends React.Component {
           return
         }
 
-        this.props.navigation.navigate('App')
+        this.props.navigation.navigate('UpcomingLesson')
       }
     });
   };

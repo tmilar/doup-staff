@@ -100,7 +100,7 @@ class LessonService {
   isCurrent = lesson => {
     const now = moment()
     const lessonStartMaxLimit = moment(lesson.startDate).add(this.LESSON_TIME_TOLERANCE.START.MAX)
-    const lessonEndMaxLimit = moment(lesson.startDate).add(this.LESSON_TIME_TOLERANCE.END.MAX)
+    const lessonEndMaxLimit = moment(lesson.endDate).add(this.LESSON_TIME_TOLERANCE.END.MAX)
     const alreadyFinished = !!lesson.actualEndDate
     const alreadyStarted = !!lesson.actualStartDate
 

@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {Button, Image, StyleSheet, Text, View, AsyncStorage, Alert, Platform} from 'react-native';
-import {ImagePicker, Permissions, Linking, IntentLauncherAndroid as IntentLauncher} from 'expo';
-import client from '../service/RequestClient';
+import {Alert, AsyncStorage, Button, Image, Platform, StyleSheet, Text, View} from 'react-native';
+import {ImagePicker, IntentLauncherAndroid as IntentLauncher, Linking, Permissions} from 'expo';
 import moment from 'moment-timezone'
 
 export default class Uploader extends Component {
@@ -85,11 +84,17 @@ export default class Uploader extends Component {
 
     await new Promise(resolve => this.setState({uploaded: false}, resolve))
 
-    let pickerResult = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      quality: 0.5,
-      exif: true
-    });
+    let pickerResult
+    try {
+      pickerResult = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 0.5,
+        exif: true
+      });
+    } catch (error) {
+      console.error("Problem with camera launch", error)
+      return
+    }
 
     return this._handleImagePicked(pickerResult);
   };
@@ -99,7 +104,7 @@ export default class Uploader extends Component {
       console.log("[Uploader] Cancelled image pick.")
       return
     }
-
+    console.log("[Uploader] Took a pic. ")
     this.setState({image});
   };
 
@@ -139,7 +144,7 @@ export default class Uploader extends Component {
     } catch (error) {
       console.log({uploadResponse});
       console.log({e: error});
-      Alert.alert(`Error`,`No se pudo subir su imagen, por favor intente nuevamente. \n${JSON.stringify(error)}`);
+      Alert.alert(`Error`, `No se pudo subir su imagen, por favor intente nuevamente. \n${JSON.stringify(error)}`);
       await this.props.onUploadEnd(error)
     }
   }
