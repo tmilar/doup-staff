@@ -57,12 +57,43 @@ class LessonService {
    */
   _isLessonExpired = lesson => {
     const now = moment();
-    const lessonEnd = moment(lesson.endDate);
-    const lessonExpiration = moment(lessonEnd).add(30, "minutes")
+    const lessonExpiration = moment(lesson.endDate).add(30, "minutes")
     const isLessonOver = !!lesson.actualEndDate
 
     return isLessonOver || now.isAfter(lessonExpiration)
+  }
 
+  /**
+   * Check if lesson is still upcoming.
+   * A lesson is upcoming if not started yet,
+   * and if current time is before startDate
+   *
+   * @param lesson
+   * @returns {boolean|*}
+   */
+  isUpcoming = lesson => {
+    const now = moment()
+    const lessonStartMaxLimit = moment(lesson.endDate).add(20, "minutes")
+    const alreadyStarted = !!lesson.actualStartDate
+
+    return !alreadyStarted && now.isBefore(lessonStartMaxLimit)
+  }
+
+  /**
+   * Check if lesson is still current.
+   * Is current if has been already started,
+   * and if: has not been finished yet, and current time is beofre endDate + end time tolerance.
+   *
+   * @param lesson
+   */
+  isCurrent = lesson => {
+    const now = moment()
+    const lessonStartMaxLimit = moment(lesson.startDate).add(20, 'minutes')
+    const lessonEndMaxLimit = moment(lesson.startDate).add(15, 'minutes')
+    const alreadyFinished = !!lesson.actualEndDate
+    const alreadyStarted = !!lesson.actualStartDate
+
+    return !alreadyFinished && (alreadyStarted || now.isBetween(lessonStartMaxLimit, lessonEndMaxLimit))
   }
 
   /**
