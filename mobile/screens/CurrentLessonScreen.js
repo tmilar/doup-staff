@@ -1,9 +1,55 @@
 import React from 'react';
-import {AsyncStorage, Button, StyleSheet, View, Alert} from "react-native";
+import {Alert, Button, StyleSheet, View} from "react-native";
 import LessonInfoContainer from "../components/LessonInfoContainer";
 import LessonService from '../service/LessonService';
+import moment from "moment-timezone";
+import {showLoading, hideLoading} from 'react-native-notifyer';
 
 export default class CurrentLessonScreen extends React.Component {
+
+  state = {
+    currentLesson: null,
+    canFinishCurrentLesson: false
+  }
+
+  _setCurrentLessonCanFinish = () => {
+    this.setState({canFinishCurrentLesson: true})
+  }
+
+  _checkOrScheduleCanLessonFinish = () => {
+    const {currentLesson} = this.state
+
+    if (!currentLesson) {
+      return
+    }
+
+    const now = moment()
+    const canLessonFinishTime = moment(currentLesson.endDate).add(LessonService.LESSON_TIME_TOLERANCE.END.MIN)
+
+    if (now.isBefore(canLessonFinishTime)) {
+      const remainingTime = canLessonFinishTime.diff(now)
+      console.log(`Scheduling lesson can finish in ${remainingTime} ms`)
+
+      this.canLessonFinishTimeout = setTimeout(
+        () => {
+          console.log("[CurrentLessonScreen] Current lesson can now be finished. ")
+          this._setCurrentLessonCanFinish()
+        },
+        remainingTime
+      )
+    } else {
+      console.log("[CurrentLessonScreen] Current lesson is already able to be finished. ")
+      this._setCurrentLessonCanFinish()
+    }
+  }
+
+  componentDidMount() {
+    this._checkOrScheduleCanLessonFinish();
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.canLessonFinishTimeout)
+  }
 
   _goToUploadScreen = lesson => {
     this.props.navigation.navigate('Upload', {
@@ -38,14 +84,14 @@ export default class CurrentLessonScreen extends React.Component {
   _turnEndButton = () => {
     return (
       <View style={styles.actionButton}>
-        <Button title="Finalizar Turno" onPress={this._completeCurrentTurn}/>
+        <Button title="Finalizar Turno" disabled={!this.state.canFinishCurrentLesson} onPress={this._completeCurrentTurn}/>
       </View>
     )
   }
 
   _onLessonFetch = lesson => {
     console.log("[CurrentLessonScreen] Fetched lesson: ", lesson)
-    this.setState({currentLesson: lesson})
+    this.setState({currentLesson: lesson}, this._checkOrScheduleCanLessonFinish)
   }
 
   render() {
