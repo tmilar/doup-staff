@@ -5,6 +5,8 @@ import LessonService from '../service/LessonService';
 import moment from "moment-timezone";
 import {showLoading, hideLoading} from 'react-native-notifyer';
 
+const MAX_TIMEOUT_MILLIS = moment.duration(5, 'minutes').asMilliseconds();
+
 export default class CurrentLessonScreen extends React.Component {
 
   state = {
@@ -12,8 +14,8 @@ export default class CurrentLessonScreen extends React.Component {
     canFinishCurrentLesson: false
   }
 
-  _setCurrentLessonCanFinish = () => {
-    this.setState({canFinishCurrentLesson: true})
+  _setCurrentLessonCanFinish = (canFinishCurrentLesson = true) => {
+    this.setState({canFinishCurrentLesson})
   }
 
   _checkOrScheduleCanLessonFinish = () => {
@@ -24,23 +26,56 @@ export default class CurrentLessonScreen extends React.Component {
     }
 
     const now = moment()
-    const canLessonFinishTime = moment(currentLesson.endDate).add(LessonService.LESSON_TIME_TOLERANCE.END.MIN)
+    const canLessonFinishMinTime = moment(currentLesson.endDate).add(LessonService.LESSON_TIME_TOLERANCE.END.MIN)
+    const canLessonFinishMaxTime = moment(currentLesson.endDate).add(LessonService.LESSON_TIME_TOLERANCE.END.MAX)
 
-    if (now.isBefore(canLessonFinishTime)) {
-      const remainingTime = canLessonFinishTime.diff(now)
-      console.log(`Scheduling lesson can finish in ${remainingTime} ms`)
-
-      this.canLessonFinishTimeout = setTimeout(
-        () => {
-          console.log("[CurrentLessonScreen] Current lesson can now be finished. ")
-          this._setCurrentLessonCanFinish()
-        },
-        remainingTime
-      )
-    } else {
-      console.log("[CurrentLessonScreen] Current lesson is already able to be finished. ")
-      this._setCurrentLessonCanFinish()
+    const lessonCanFinishAction = () => this._setCurrentLessonCanFinish()
+    const lessonCanNotFinishAction = () => {
+      this._setCurrentLessonCanFinish(false)
+      this.props.navigation.navigate('UpcomingLesson')
     }
+
+    // check & set if can now be finished
+    if (now.isBetween(canLessonFinishMinTime, canLessonFinishMaxTime, null, '[]')) {
+      console.log("Current lesson is already able to be finished. ")
+      lessonCanFinishAction()
+    }
+
+    // check & schedule for can finish time
+    if (now.isBefore(canLessonFinishMinTime)) {
+      const remainingFinishTime = canLessonFinishMinTime.diff(now)
+      if (remainingFinishTime < MAX_TIMEOUT_MILLIS) {
+        console.log(`Scheduling lesson can finish in ${remainingFinishTime} ms`)
+        this.canLessonFinishTimeout = setTimeout(
+          () => {
+            console.log("Current lesson can now be finished. ")
+            lessonCanFinishAction()
+          },
+          remainingFinishTime
+        )
+      }
+    }
+
+    // check & schedule for can finish stop time
+    if (now.isBefore(canLessonFinishMaxTime)) {
+      const remainingFinishStopTime = canLessonFinishMaxTime.diff(now)
+      if (remainingFinishStopTime < MAX_TIMEOUT_MILLIS) {
+        console.log(`Scheduling lesson can no longer be finished in ${remainingFinishStopTime} ms`)
+        this.expireLessonFinishTimeout = setTimeout(
+          () => {
+            console.log("Current lesson can no longer be finished. ")
+            lessonCanNotFinishAction()
+          },
+          remainingFinishStopTime
+        )
+      }
+    }
+
+
+    if (now.isAfter(canLessonFinishMaxTime)) {
+      lessonCanNotFinishAction()
+    }
+
   }
 
   componentDidMount() {
@@ -49,6 +84,7 @@ export default class CurrentLessonScreen extends React.Component {
 
   componentWillUnmount() {
     clearTimeout(this.canLessonFinishTimeout)
+    clearTimeout(this.expireLessonFinishTimeout)
   }
 
   _goToUploadScreen = lesson => {
