@@ -1,57 +1,62 @@
 import React from 'react';
-import {ActivityIndicator, AsyncStorage, StatusBar, StyleSheet, View,} from 'react-native';
+import {ActivityIndicator, AsyncStorage, StatusBar, StyleSheet, View} from 'react-native';
 import LessonService from "../service/LessonService";
 
 export default class LoadingScreen extends React.Component {
-  constructor() {
-    super();
-    this._bootstrapAsync();
-  }
 
-  _bootstrapAsync = async () => {
-    await this._checkLogin();
-    await this._checkCurrentLesson()
+  async componentDidMount() {
+    const {navigation} = this.props
+
+    if(!await this._checkLogin()) {
+      // switch to the Auth screen and unmount this loading screen away.
+      console.log("[LoadingScreen] No login, navigating to 'Auth'.")
+      navigation.navigate('Auth')
+      return
+    }
+
+    const lessonScreen = await this._checkCurrentLesson()
+    navigation.navigate(lessonScreen)
   };
 
   /**
-   * If no login, navigate to Auth screen.
+   * Check login.
    *
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>}
    * @private
    */
   _checkLogin = async () => {
-    const isLoggedIn = !!(await AsyncStorage.getItem('userToken'));
-
-    if (!isLoggedIn) {
-      // switch to the Auth screen and unmount this loading screen away.
-      this.props.navigation.navigate('Auth')
-    }
+    return !!(await AsyncStorage.getItem('userToken'))
   }
 
   /**
    * Check current lesson, then navigate to proper screen.
    *
-   * @returns {Promise<void>}
+   * @returns {Promise<string>}
    * @private
    */
   _checkCurrentLesson = async () => {
-    const {navigation} = this.props
     console.log("[LoadingScreen] Fetching next lesson...")
     const lesson = await LessonService.retrieveNextLesson()
 
     if (!lesson) {
       console.log("[LoadingScreen] No next lesson, navigating to 'App'")
-      navigation.navigate('App')
-      return
+      return 'App'
     }
 
-    if (!lesson.actualStartDate) {
+    const isUpcoming = LessonService.isUpcoming(lesson) // still not started, and is startable
+    if(isUpcoming) {
       console.log("[LoadingScreen] Next lesson has not been started yet, navigating to 'UpcomingLesson'")
-      navigation.navigate('UpcomingLesson')
-    } else {
-      console.log("[LoadingScreen] Next lesson has already been started, navigating to 'CurrentLesson'")
-      navigation.navigate('CurrentLesson')
+      return 'UpcomingLesson'
     }
+
+    const isCurrent = LessonService.isCurrent(lesson) // started, but still not finished.
+    if(isCurrent) {
+      console.log("[LoadingScreen] Lesson has already been started, and not yet finished, navigating to 'CurrentLesson'")
+      return 'CurrentLesson'
+    }
+
+    console.error("[LoadingScreen] lesson is not upcoming and not current... navigating to 'App'")
+    return 'App'
   }
 
   // Render loading content that you like here
