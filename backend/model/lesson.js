@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const moment = require('moment-timezone');
+const moment = require('moment-timezone')
 
 const LessonsSchema = new mongoose.Schema({
   instructor: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
@@ -61,7 +61,7 @@ LessonsSchema.methods.saveStartDate = async function (date) {
   const {MIN, MAX} = LESSON_TIME_TOLERANCE.START
   const minRange = moment(startDate).add(MIN)
   const maxRange = moment(startDate).add(MAX)
-  let isInRange = moment(date).isBetween(minRange, maxRange);
+  const isInRange = moment(date).isBetween(minRange, maxRange)
 
   if (!isInRange) {
     const startDateStr = moment(startDate).format('HH:mm')
@@ -71,7 +71,7 @@ LessonsSchema.methods.saveStartDate = async function (date) {
     throw error
   }
 
-  // is in valid range => save the start date
+  // Is in valid range => save the start date
   this.actualStartDate = date
   await this.save()
 }
@@ -98,7 +98,7 @@ LessonsSchema.methods.saveEndDate = async function (date) {
     throw error
   }
 
-  // is in valid range => save the end date
+  // Is in valid range => save the end date
   this.actualEndDate = date
   await this.save()
 }

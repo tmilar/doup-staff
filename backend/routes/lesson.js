@@ -1,9 +1,9 @@
 const router = require('express').Router()
+const moment = require('moment-timezone')
 const isAuthorized = require('../lib/is-authorized')
 const asyncHandler = require('../lib/async-handler')
 const Lesson = require('../model/lesson')
 const logger = require('../config/logger')
-const moment = require('moment-timezone')
 
 /**
  * Retrieve user next lesson.
@@ -28,11 +28,11 @@ async function findInstructorLessonById(lessonId, {_id, username}) {
 
   if (!lesson) {
     logger.error(`Lesson id ${lessonId} not found. `)
-    const error = new Error("La clase seleccionada no existe.");
+    const error = new Error('La clase seleccionada no existe.')
     error.status = 404
     throw error
   }
-  // lesson found
+  // Lesson found
 
   if (!lesson.instructor.equals(_id)) {
     logger.error(`User id ${_id} '${username}' can't start a lesson from other instructor. `)
@@ -40,24 +40,25 @@ async function findInstructorLessonById(lessonId, {_id, username}) {
     error.status = 403
     throw error
   }
-  // lesson belongs to the user
-  return lesson;
+
+  // Lesson belongs to the user
+  return lesson
 }
 
 router.post('/:id/start', isAuthorized, asyncHandler(async (req, res) => {
   const {user, params: {id: lessonId}} = req
   const now = moment().toDate()
-  const lesson = await findInstructorLessonById(lessonId, user);
+  const lesson = await findInstructorLessonById(lessonId, user)
 
   if (lesson.actualStartDate) {
-    // error: lesson has already been started
+    // Error: lesson has already been started
     logger.info(`Lesson ${lesson._id} has already been started, at ${lesson.actualStartDate}.`)
     const error = new Error(`La clase seleccionada ya ha sido iniciada ${moment(lesson.actualStartDate).fromNow()}.`)
     error.status = 400
     throw error
   }
 
-  // actually start lesson
+  // Actually start lesson
   await lesson.saveStartDate(now)
 
   res.status(200).json(lesson)
@@ -66,21 +67,20 @@ router.post('/:id/start', isAuthorized, asyncHandler(async (req, res) => {
 router.post('/:id/end', isAuthorized, asyncHandler(async (req, res) => {
   const {user, params: {id: lessonId}} = req
   const now = moment().toDate()
-  const lesson = await findInstructorLessonById(lessonId, user);
+  const lesson = await findInstructorLessonById(lessonId, user)
 
   if (lesson.actualEndDate) {
-    // error: lesson has already been finished
+    // Error: lesson has already been finished
     logger.info(`Lesson ${lesson._id} has already been finished, at ${lesson.actualEndDate}.`)
     const error = new Error(`La clase seleccionada ya ha sido finalizada ${moment(lesson.actualEndDate).fromNow()}.`)
     error.status = 400
     throw error
   }
 
-  // actually end lesson
+  // Actually end lesson
   await lesson.saveEndDate(now)
 
   res.status(200).json(lesson)
 }))
-
 
 module.exports = router
