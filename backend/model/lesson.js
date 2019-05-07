@@ -36,7 +36,7 @@ LessonsSchema.statics.findNextForUser = async function (userId) {
   const [nextLesson] = await this
     .find({
       instructor: userId,
-      endDate: {$gte: now.add(LESSON_TIME_TOLERANCE.END.MAX)},
+      endDate: {$gte: now.subtract(LESSON_TIME_TOLERANCE.END.MAX)},
       actualEndDate: {$exists: false}
     })
     .sort({startDate: 1})
@@ -47,6 +47,60 @@ LessonsSchema.statics.findNextForUser = async function (userId) {
   }
 
   return nextLesson
+}
+
+/**
+ * Method to save Lesson start date,
+ * validating with allowed start date ranges.
+ *
+ * @param {Date} date - to be used for the actualStartDate
+ * @returns {Promise<void>} - save promise
+ */
+LessonsSchema.methods.saveStartDate = async function (date) {
+  const {startDate} = this
+  const {MIN, MAX} = LESSON_TIME_TOLERANCE.START
+  const minRange = moment(startDate).add(MIN)
+  const maxRange = moment(startDate).add(MAX)
+  let isInRange = moment(date).isBetween(minRange, maxRange);
+
+  if (!isInRange) {
+    const startDateStr = moment(startDate).format('HH:mm')
+    const errMsg = `La clase sólo puede ser iniciada entre ${MIN.humanize()} antes y ${MAX.humanize()} después de la hora de inicio (${startDateStr}).`
+    const error = new Error(errMsg)
+    error.status = 400
+    throw error
+  }
+
+  // is in valid range => save the start date
+  this.actualStartDate = date
+  await this.save()
+}
+
+/**
+ * Method to save Lesson end date,
+ * validating with allowed end date ranges.
+ *
+ * @param {Date} date - to be used for the actualEndDate
+ * @returns {Promise<void>} - save promise
+ */
+LessonsSchema.methods.saveEndDate = async function (date) {
+  const {endDate} = this
+  const {MIN, MAX} = LESSON_TIME_TOLERANCE.END
+  const minRange = moment(endDate).add(MIN)
+  const maxRange = moment(endDate).add(MAX)
+  const isInRange = moment(date).isBetween(minRange, maxRange)
+
+  if (!isInRange) {
+    const endDateStr = moment(endDate).format('HH:mm')
+    const errMsg = `La clase sólo puede ser finalizada entre ${MIN.humanize()} antes y ${MAX.humanize()} después de la hora de fin (${endDateStr}).`
+    const error = new Error(errMsg)
+    error.status = 400
+    throw error
+  }
+
+  // is in valid range => save the end date
+  this.actualEndDate = date
+  await this.save()
 }
 
 module.exports = mongoose.model('Lesson', LessonsSchema)
