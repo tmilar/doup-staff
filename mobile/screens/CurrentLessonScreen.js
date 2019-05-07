@@ -1,5 +1,5 @@
 import React from 'react';
-import {AsyncStorage, Button, StyleSheet, View} from "react-native";
+import {AsyncStorage, Button, StyleSheet, View, Alert} from "react-native";
 import LessonInfoContainer from "../components/LessonInfoContainer";
 import LessonService from '../service/LessonService';
 
@@ -11,8 +11,17 @@ export default class CurrentLessonScreen extends React.Component {
       onFinish: async () => {
         const {currentLesson} = this.state
 
-        if(!currentLesson) {
+        if (!currentLesson) {
           console.error("No current lesson in state! Can't properly finish")
+          return
+        }
+
+        try {
+          const {actualEndDate} = await LessonService.finishLesson(currentLesson)
+          console.log(`[CurrentLessonScreen] Lesson finished at ${actualEndDate}`)
+        } catch (error) {
+          console.error("Problem sending finish lesson request", error)
+          Alert.alert("¡Ups!", "Ocurrió un problema al finalizar tu clase. Por favor, vuelve a intentarlo.")
           return
         }
 

@@ -37,6 +37,17 @@ class LessonService {
     return startedLesson
   }
 
+  finishLesson = async lesson => {
+    const finishedLesson = await client.sendRequest(`/lesson/${lesson._id}/end`, {
+      method: 'POST'
+    })
+
+    // update stored lesson
+    await AsyncStorage.setItem('nextLesson', JSON.stringify(finishedLesson))
+
+    return finishedLesson
+  }
+
   /**
    * Check if lesson is expired (current time is more than *30* minutes after end date).
    *
@@ -48,8 +59,10 @@ class LessonService {
     const now = moment();
     const lessonEnd = moment(lesson.endDate);
     const lessonExpiration = moment(lessonEnd).add(30, "minutes")
+    const isLessonOver = !!lesson.actualEndDate
 
-    return now.isAfter(lessonExpiration)
+    return isLessonOver || now.isAfter(lessonExpiration)
+
   }
 
   /**
@@ -74,7 +87,7 @@ class LessonService {
       await AsyncStorage.setItem('nextLesson', JSON.stringify(nextLesson))
     } else {
       let logMsg = "[LessonService] no next lesson fetched"
-      if(await AsyncStorage.getItem('nextLesson')) {
+      if (await AsyncStorage.getItem('nextLesson')) {
         logMsg += ", removing 'nextLesson' from cache."
         await AsyncStorage.removeItem('nextLesson')
       }
