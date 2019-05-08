@@ -121,7 +121,7 @@ export default class LoginScreen extends Component {
           <View style={styles.header}>
             <Image
               resizeMode="contain"
-              source={require('../assets/images/logo-doup_green.png')}/>
+              source={require('../assets/images/logo-doup.png')}/>
           </View>
         </View>
         <View style={{flex: 1}}>
