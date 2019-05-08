@@ -2,10 +2,10 @@ import React from 'react';
 import {Alert, Button, StyleSheet, View} from "react-native";
 import LessonInfoContainer from "../components/LessonInfoContainer";
 import LessonService from '../service/LessonService';
-import moment from "moment-timezone";
+import moment from "moment";
 import {showLoading, hideLoading} from 'react-native-notifyer';
 
-const MAX_TIMEOUT_MILLIS = moment.duration(5, 'minutes').asMilliseconds();
+const MAX_TIMEOUT_MILLIS = moment.duration(3, 'minutes').asMilliseconds();
 
 export default class CurrentLessonScreen extends React.Component {
 

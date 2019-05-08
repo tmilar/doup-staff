@@ -8,7 +8,7 @@ import LessonService from '../service/LessonService'
 
 moment.locale('es');
 moment.tz.setDefault("America/Argentina/Buenos_Aires");
-const MAX_TIMEOUT_MILLIS = moment.duration(5, 'minutes').asMilliseconds();
+const MAX_TIMEOUT_MILLIS = moment.duration(3, 'minutes').asMilliseconds();
 
 export default class UpcomingLessonScreen extends React.Component {
 
