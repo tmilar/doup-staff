@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {Alert, AsyncStorage, Button, Image, Platform, StyleSheet, Text, View} from 'react-native';
+import {Alert, AsyncStorage, Button, Image, Platform, StyleSheet, Text, View, TextInput} from 'react-native';
 import {ImagePicker, IntentLauncherAndroid as IntentLauncher, Linking, Permissions} from 'expo';
 import moment from 'moment-timezone'
+import client from '../service/RequestClient'
 
 export default class Uploader extends Component {
   state = {
@@ -35,6 +36,17 @@ export default class Uploader extends Component {
         <View style={styles.imageContainer}>
           <Image source={{uri: image}} style={styles.maybeRenderImage}/>
         </View>
+
+        <TextInput
+          value={this.state.comment}
+          placeholder=" aclaraciones... (opcional)"
+          ref="comment"
+          style={this.state.comment.length === 0 ? {padding: 8, color: 'gray'} : {padding: 8, color: 'black'}}
+          placeholderTextColor="gray"
+          underlineColorAndroid="transparent"
+          autoCapitalize='none'
+          onChangeText={(comment) => this.setState({comment})}
+        />
 
         {this._maybeRenderThanksMessage()}
       </View>
@@ -131,12 +143,13 @@ export default class Uploader extends Component {
     }
 
     const uploadName = await this._buildPictureName()
+    const {comment} = this.state
 
     let uploadResponse;
 
     try {
       this.props.onUploadStart()
-      uploadResponse = await uploadImageAsync(image, uploadName)
+      uploadResponse = await uploadImageAsync(image, uploadName, comment)
       await new Promise(resolve =>
         this.setState({uploaded: true}, resolve)
       )
@@ -162,7 +175,7 @@ export default class Uploader extends Component {
   }
 }
 
-async function uploadImageAsync(uri, pictureTitle) {
+async function uploadImageAsync(uri, pictureTitle, comment) {
   const resource = '/upload'
 
   let uriParts = uri.split('.');
@@ -170,6 +183,11 @@ async function uploadImageAsync(uri, pictureTitle) {
   let name = `${pictureTitle}.${fileType}`
 
   let formData = new FormData();
+
+  if (comment && comment.length > 0) {
+    formData.append('comment', comment)
+  }
+
   formData.append('photo', {
     uri,
     name,
