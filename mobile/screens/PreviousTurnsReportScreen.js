@@ -1,8 +1,7 @@
 import React from 'react';
 import {Alert, StyleSheet, View} from 'react-native'
-import LessonService from "../service/LessonService";
 import {showLoading, hideLoading} from 'react-native-notifyer';
-
+import LessonService from "../service/LessonService";
 import client from "../service/RequestClient";
 
 export default class PreviousTurnsReportScreen extends React.Component {
@@ -20,7 +19,7 @@ export default class PreviousTurnsReportScreen extends React.Component {
 
   _handleReport = async report => {
     let promptTitle, promptMessage, actionMessage
-    let isSendSuccessful = true
+    let errorResult = null
 
     if (report) {
       try {
@@ -34,7 +33,7 @@ export default class PreviousTurnsReportScreen extends React.Component {
         promptTitle = 'Error'
         promptMessage = 'Error de comunicación con el servidor. \nPor favor contacta a la administración!'
         actionMessage = 'OK.'
-        isSendSuccessful = false
+        errorResult = error
       }
     } else {
       promptTitle = 'Gracias'
@@ -44,7 +43,7 @@ export default class PreviousTurnsReportScreen extends React.Component {
 
     return new Promise((resolve, reject) => Alert.alert(promptTitle, promptMessage, [{
       text: actionMessage,
-      onPress: () => isSendSuccessful ? resolve() : reject()
+      onPress: () => errorResult ? reject(errorResult) : resolve()
     }]))
   }
 
@@ -54,6 +53,7 @@ export default class PreviousTurnsReportScreen extends React.Component {
     } catch (error) {
       console.log("[PreviousTurnReportScreen] Error when handling report, going back.", error)
       this.props.navigation.goBack()
+      return
     }
 
     const lesson = this.props.navigation.getParam('lesson', null)
@@ -72,13 +72,15 @@ export default class PreviousTurnsReportScreen extends React.Component {
     } catch (error) {
       hideLoading()
       console.error("[PreviousTurnReportScreen] Could not start next lesson. ", error)
-      Alert.alert("Ups...",
-        `No se pudo comenzar la clase: ${error.message} (${error.status}) \nPor favor, ¡avisa a la administración!`,
-        [{
-          text: 'OK',
-          onPress: () => this.props.navigation.goBack()
-        }]
-      )
+      let errMsg = `Ocurrió un problema al iniciar tu clase${error.message ? `: ${error.message}` : ''}` +
+        '\nPor favor, ¡avisa a la administración!'
+      if (error.status !== 500) {
+        errMsg = error.message || errMsg
+      }
+      Alert.alert("Ups...", errMsg, [{
+        text: 'OK',
+        onPress: () => this.props.navigation.goBack()
+      }])
       return
     }
 

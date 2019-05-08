@@ -103,11 +103,15 @@ export default class CurrentLessonScreen extends React.Component {
           const {actualEndDate} = await LessonService.finishLesson(currentLesson)
           hideLoading()
           console.log(`[CurrentLessonScreen] Lesson finished at ${actualEndDate}`)
-          Alert.alert("¡Listo!", "Clase finalizada con éxito. \n¡Hasta la próxima! \ud83d\udc4b")
+          Alert.alert("¡Listo!", "Has finalizado tu clase. \n¡Hasta la próxima! \ud83d\udc4b")
         } catch (error) {
           hideLoading()
           console.error("Problem sending finish lesson request", error)
-          Alert.alert("¡Ups!", "Ocurrió un problema al finalizar tu clase. Por favor, vuelve a intentarlo.")
+          let errMsg = "Ocurrió un problema al finalizar tu clase. Por favor, vuelve a intentarlo."
+          if (error.status !== 500) {
+            errMsg = error.message || errMsg
+          }
+          Alert.alert("¡Ups!", errMsg)
           return
         }
 
@@ -124,7 +128,8 @@ export default class CurrentLessonScreen extends React.Component {
   _turnEndButton = () => {
     return (
       <View style={styles.actionButton}>
-        <Button title="Finalizar Turno" disabled={!this.state.canFinishCurrentLesson} onPress={this._completeCurrentTurn}/>
+        <Button title="Finalizar Turno" disabled={!this.state.canFinishCurrentLesson}
+                onPress={this._completeCurrentTurn}/>
       </View>
     )
   }

@@ -32,10 +32,10 @@ export default class UploadScreen extends Component {
   onUploadEnd = error => {
     this.toggleLoading()
     if (error) {
-      showToast("Error en la subida")
+      showToast("Error en la subida", {duration: 1500})
       return
     }
-    showToast("Subida exitosa")
+    showToast("Subida exitosa", {duration: 1500})
   }
 
   onFinish = async () => {
