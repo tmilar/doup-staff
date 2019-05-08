@@ -116,73 +116,71 @@ export default class LoginScreen extends Component {
   render() {
     const versionText = `v${pkg.version}`
     return (
-      <View style={[styles.container, styles.scroll, {backgroundColor: '#30282a'}]}>
-        <View style={{marginTop: 50, height: '40%'}}>
-          <View style={styles.header}>
-            <Image
-              resizeMode="contain"
-              source={require('../assets/images/logo-doup.png')}/>
-          </View>
+      <View style={[styles.container, styles.scroll]}>
+        <View style={styles.headerImageContainer}>
+          <Image
+            style={styles.headerImage}
+            resizeMode="contain"
+            source={require('../assets/images/logo-doup.png')}
+          />
         </View>
-        <View style={{flex: 1}}>
-          <View style={styles.loginForm}>
-            <TextInput
-              value={this.state.username}
-              placeholder="Usuario"
-              ref="usuario"
-              style={[styles.textInput, {color: 'black'}]}
-              selectTextOnFocus
-              placeholderTextColor="gray"
-              underlineColorAndroid="transparent"
-              autoCapitalize='none'
-              returnKeyType='next'
-              onSubmitEditing={() => this.refs.password.focus()}
-              onChangeText={this._handleUsernameTextChange}
-            />
-            <TextInput
-              value={this.state.password}
-              placeholder="Contraseña"
-              ref="password"
-              style={[styles.textInput, {color: 'black'}]}
-              autoCapitalize='none'
-              autoCorrect={false}
-              placeholderTextColor="gray"
-              underlineColorAndroid="transparent"
-              secureTextEntry
-              returnKeyType="go"
-              onChangeText={this._handlePasswordTextChange}
-              onSubmitEditing={this._handleLoginButtonPress}
-            />
 
-            <View style={{flex: 1, justifyContent: 'space-around', alignItems: 'center'}}>
-              <View style={styles.actionButtons}>
-                <Button
-                  title="Login"
-                  color="#4b944d"
-                  style={styles.Login}
-                  onPress={this._handleLoginButtonPress}
-                />
+        <View style={styles.loginForm}>
+          <TextInput
+            value={this.state.username}
+            placeholder="Usuario"
+            ref="usuario"
+            style={[styles.textInput, {color: 'black'}]}
+            placeholderTextColor="gray"
+            underlineColorAndroid="transparent"
+            autoCapitalize='none'
+            returnKeyType='next'
+            onSubmitEditing={() => this.refs.password.focus()}
+            onChangeText={this._handleUsernameTextChange}
+          />
+          <TextInput
+            value={this.state.password}
+            placeholder="Contraseña"
+            ref="password"
+            style={[styles.textInput, {color: 'black'}]}
+            autoCapitalize='none'
+            autoCorrect={false}
+            placeholderTextColor="gray"
+            underlineColorAndroid="transparent"
+            secureTextEntry
+            returnKeyType="go"
+            onChangeText={this._handlePasswordTextChange}
+            onSubmitEditing={this._handleLoginButtonPress}
+          />
 
-                {!this.state.keyboardVisible &&
-                <Text
-                  onPress={this._handleRegisterTextPress}
-                  style={styles.notRegistered}>
-                  No estoy registrado
-                </Text>
-                }
+          <View style={styles.actionButtonsContainer}>
+            <View style={styles.actionButtons}>
+              <Button
+                title="Login"
+                color="#4b944d"
+                style={styles.loginButton}
+                onPress={this._handleLoginButtonPress}
+              />
 
-                {!this.state.keyboardVisible &&
-                <Text
-                  style={styles.notRegistered}>
-                  {versionText}
-                </Text>
-                }
-              </View>
+              {!this.state.keyboardVisible &&
+              <Text
+                onPress={this._handleRegisterTextPress}
+                style={styles.notRegisteredButton}>
+                No estoy registrado
+              </Text>
+              }
+
+              {!this.state.keyboardVisible &&
+              <Text
+                style={styles.notRegisteredButton}>
+                {versionText}
+              </Text>
+              }
             </View>
-
-            {/* The next view will animate to match the actual keyboards height */}
-            <KeyboardSpacer onToggle={this._handleKeyBoardToggle}/>
           </View>
+
+          {/* The next view will animate to match the actual keyboards height */}
+          <KeyboardSpacer onToggle={this._handleKeyBoardToggle}/>
         </View>
       </View>
     )
@@ -193,16 +191,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundColor: '#30282a'
   },
-  header: {
+  headerImageContainer: {
+    marginTop: 20,
+    height: '35%',
+    width: '100%'
+  },
+  headerImage: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
+    width: undefined,
+    height: undefined
   },
   loginForm: {
-    flex: 2,
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center'
+  },
+  actionButtonsContainer: {
+    flex: 1,
+    justifyContent: 'space-around',
     alignItems: 'center'
   },
   actionButtons: {
@@ -217,14 +226,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 5
   },
-  Login: {
+  loginButton: {
     color: '#4b944d',
     width: 250
   },
   scroll: {
     padding: 30
   },
-  notRegistered: {
+  notRegisteredButton: {
     textAlign: 'center',
     marginTop: 15,
     fontSize: 16,
