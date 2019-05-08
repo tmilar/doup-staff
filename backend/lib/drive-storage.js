@@ -22,11 +22,14 @@ class DriveStorage {
     {mimetype: mimeType, originalname: originalName, stream},
     cb
   ) {
+    const {body: {comment}, username} = req
+    const commentValue = (typeof comment === 'string' && comment.length > 0) ? `Comentario de ${username}: '${comment}'` : undefined
+
     const fileMetadata = {
       name: originalName,
       mimeType,
       parents: [parentFolder],
-      description: req.body.comment
+      description: commentValue
     }
 
     this.drive.files.create({

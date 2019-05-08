@@ -27,6 +27,7 @@ const http = server(app)
 const port = process.env.PORT || 3000
 
 async function setup() {
+  logger.info('setting up...')
   const [{connection: {name, host, port}}, jwtClient] = await Promise.all([
     db.connect(),
     googleClient.authenticate()

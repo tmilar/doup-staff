@@ -12,13 +12,14 @@ module.exports = jwtClient => {
   const fieldName = 'photo'
 
   router.post('/', isAuthorized, upload.single(fieldName), (req, res) => {
-    if (!req.file) {
-      logger.error(`Error when trying to upload image from user ${req.username}`)
+    const {file, username} = req
+    if (!file) {
+      logger.error(`Error when trying to upload image from user ${username}`)
       throw new Error('No se pudo subir la imagen. ')
     }
 
-    logger.info(`Successfully uploaded file: ${JSON.stringify(req.file)}`)
-    res.json(req.file)
+    logger.info(`Successfully uploaded file '${file.googleId}': ${file.uploadFilename}`)
+    res.sendStatus(200)
   })
 
   return router
