@@ -45,7 +45,7 @@ async function isAuthorized(req, res, next) {
 
   if (!user) {
     logger.error(`Authorization error: could not find user ${username} in DB.`)
-    error.message = 'El nombre de usuario es inválido, por favor vuelva a intentarlo. '
+    const error = new Error('El nombre de usuario es inválido, por favor vuelva a intentarlo. ')
     error.status = 401
     return next(error)
   }
