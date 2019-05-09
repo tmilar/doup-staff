@@ -1,9 +1,10 @@
 import React from 'react';
 import {Alert, Button, StyleSheet, View} from "react-native";
+import {Feather as FeatherIcon} from "@expo/vector-icons";
 import LessonInfoContainer from "../components/LessonInfoContainer";
 import LessonService from '../service/LessonService';
 import moment from "moment";
-import {showLoading, hideLoading} from 'react-native-notifyer';
+import {hideLoading, showLoading} from 'react-native-notifyer';
 
 const MAX_TIMEOUT_MILLIS = moment.duration(3, 'minutes').asMilliseconds();
 
@@ -125,11 +126,40 @@ export default class CurrentLessonScreen extends React.Component {
     this._goToUploadScreen(currentLesson)
   }
 
+  _showDisabledInfo = () => {
+    const {currentLesson} = this.state
+    let infoMsg
+
+    if (!currentLesson) {
+      infoMsg = 'Tu próxima clase aún no está disponible en el sistema. ' +
+        '\nSi crees que es un error, por favor, ¡avísanos!'
+    } else {
+      const {MIN: endMin, MAX: endMax} = LessonService.LESSON_TIME_TOLERANCE.END
+      const endMinStr = endMin.humanize()
+      const endMaxStr = endMax.humanize()
+      infoMsg = `Tu clase actual podrá ser finalizada sólo en el rango de ${endMinStr} antes a ${endMaxStr} después del horario de fin.`
+    }
+
+    Alert.alert('Info', infoMsg)
+  }
+
   _turnEndButton = () => {
+    const {canFinishCurrentlesson} = this.state
+    const isDisabled = !canFinishCurrentlesson;
+
+    let actionButtonViewStyle = [styles.actionButtonView]
+    if (isDisabled) {
+      actionButtonViewStyle = [styles.actionInfoView, styles.actionButtonView]
+    }
+
     return (
-      <View style={styles.actionButton}>
-        <Button title="Finalizar Turno" disabled={!this.state.canFinishCurrentLesson}
+      <View style={actionButtonViewStyle}>
+        <Button title="Finalizar Turno" disabled={isDisabled}
                 onPress={this._completeCurrentTurn}/>
+        {isDisabled &&
+        <FeatherIcon name="info" size={28} color="gray"
+                     style={styles.actionInfo}
+                     onPress={this._showDisabledInfo}/>}
       </View>
     )
   }
@@ -156,7 +186,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  actionButton: {
+  actionButtonView: {
     marginBottom: 20
+  },
+  actionInfoView: {
+    marginLeft: 28,
+    flexDirection: 'row',
+  },
+  actionInfo: {
+    marginLeft: 5,
+    marginTop: 3
   }
 });
