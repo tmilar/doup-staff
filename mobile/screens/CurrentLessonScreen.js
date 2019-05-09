@@ -147,7 +147,7 @@ export default class CurrentLessonScreen extends React.Component {
     const {canFinishCurrentlesson} = this.state
     const isDisabled = !canFinishCurrentlesson;
 
-    let actionButtonViewStyle = [styles.actionButtonView]
+    let actionButtonViewStyle = styles.actionButtonView
     if (isDisabled) {
       actionButtonViewStyle = [styles.actionInfoView, styles.actionButtonView]
     }

@@ -127,11 +127,11 @@ export default class UpcomingLessonScreen extends React.Component {
 
   _turnStartButton = () => {
     const {canStartNextLesson} = this.state;
-
-    let actionButtonViewStyle = [styles.actionButtonView]
     let isDisabled = !canStartNextLesson
+
+    let actionButtonViewStyle = styles.actionButtonView
     if (isDisabled) {
-      actionButtonViewStyle.push(styles.actionInfoView)
+      actionButtonViewStyle = [styles.actionInfoView, styles.actionButtonView]
     }
 
     return (
@@ -155,9 +155,10 @@ export default class UpcomingLessonScreen extends React.Component {
       infoMsg = 'Tu próxima clase aún no está disponible en el sistema. ' +
         '\nSi crees que es un error, por favor, ¡avísanos!'
     } else {
-      const startStr = LessonService.LESSON_TIME_TOLERANCE.START.MIN.humanize()
-      const endStr = LessonService.LESSON_TIME_TOLERANCE.START.MAX.humanize()
-      infoMsg = `Tu próximo turno podrá ser comenzado en el rango de ${startStr} antes a ${endStr} después del horario de inicio.`
+      const {MIN: startMin, MAX: startMax} = LessonService.LESSON_TIME_TOLERANCE.START
+      const startMinStr = startMin.humanize()
+      const startMaxStr = startMax.humanize()
+      infoMsg = `Tu próximo turno podrá ser comenzado sólo en el rango de ${startMinStr} antes, y hasta ${startMaxStr} después del horario de inicio.`
     }
 
     Alert.alert('Info', infoMsg)

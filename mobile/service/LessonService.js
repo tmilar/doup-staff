@@ -1,6 +1,10 @@
 import {AsyncStorage} from "react-native";
-import moment from "moment-timezone";
+import moment from 'moment'
+import 'moment/locale/es'
+import 'moment-timezone'
 import client from "./RequestClient";
+
+moment.locale('es')
 
 class LessonService {
 
