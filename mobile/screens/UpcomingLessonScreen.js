@@ -1,5 +1,6 @@
 import React from 'react';
-import {AsyncStorage, Button, StyleSheet, Text, View} from 'react-native'
+import {Alert, AsyncStorage, Button, StyleSheet, Text, View} from 'react-native'
+import {Feather as FeatherIcon} from '@expo/vector-icons'
 import moment from 'moment'
 import 'moment/locale/es'
 import 'moment-timezone'
@@ -127,14 +128,39 @@ export default class UpcomingLessonScreen extends React.Component {
   _turnStartButton = () => {
     const {canStartNextLesson} = this.state;
 
-    // TODO if lesson startTime is over >20 minutes ago, navigate to currentlesson screen
+    let actionButtonViewStyle = [styles.actionButtonView]
+    let isDisabled = !canStartNextLesson
+    if (isDisabled) {
+      actionButtonViewStyle.push(styles.actionInfoView)
+    }
+
     return (
       <View>
-        <View style={styles.actionButton}>
-          <Button title="Comenzar Turno" disabled={!canStartNextLesson} onPress={this._startNextLesson}/>
+        <View style={actionButtonViewStyle}>
+          <Button title="Comenzar Turno" disabled={isDisabled} onPress={this._startNextLesson}/>
+          {isDisabled &&
+          <FeatherIcon name="info" size={28} color="gray"
+                       style={styles.actionInfo}
+                       onPress={this._showDisabledInfo}/>}
         </View>
       </View>
     )
+  }
+
+  _showDisabledInfo = () => {
+    const {nextLesson} = this.state
+    let infoMsg
+
+    if (!nextLesson) {
+      infoMsg = 'Tu próxima clase aún no está disponible en el sistema. ' +
+        '\nSi crees que es un error, por favor, ¡avísanos!'
+    } else {
+      const startStr = LessonService.LESSON_TIME_TOLERANCE.START.MIN.humanize()
+      const endStr = LessonService.LESSON_TIME_TOLERANCE.START.MAX.humanize()
+      infoMsg = `Tu próximo turno podrá ser comenzado en el rango de ${startStr} antes a ${endStr} después del horario de inicio.`
+    }
+
+    Alert.alert('Info', infoMsg)
   }
 
   render() {
@@ -161,7 +187,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     textAlign: 'center'
   },
-  actionButton: {
+  actionButtonView: {
     marginBottom: 20
+  },
+  actionInfoView: {
+    marginLeft: 28,
+    flexDirection: 'row',
+  },
+  actionInfo: {
+    marginLeft: 5,
+    marginTop: 3
   }
 });
