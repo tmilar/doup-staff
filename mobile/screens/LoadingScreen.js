@@ -1,18 +1,29 @@
 import React from 'react';
-import {ActivityIndicator, AsyncStorage, StatusBar, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Alert, AsyncStorage, StatusBar, StyleSheet, View} from 'react-native';
 import LessonService from "../service/LessonService";
+import PushNotificationsService from "../service/PushNotificationsService";
 
 export default class LoadingScreen extends React.Component {
 
   async componentDidMount() {
     const {navigation} = this.props
 
-    if(!await this._checkLogin()) {
+    if (!await this._checkLogin()) {
       // switch to the Auth screen and unmount this loading screen away.
       console.log("[LoadingScreen] No login, navigating to 'Auth'.")
       navigation.navigate('Auth')
       return
     }
+    console.log("[LoadingScreen] User is logged in.")
+
+    if (!await this._checkRegisterForPushNotifications()) {
+      // switch to the Auth screen and unmount this loading screen away.
+      console.log("[LoadingScreen] Register for push notifications failed, navigating to 'Auth'.")
+      await AsyncStorage.clear()
+      navigation.navigate('Auth')
+      return
+    }
+    console.log("[LoadingScreen] Device is registered for push notifications.")
 
     const lessonScreen = await this._checkCurrentLesson()
     navigation.navigate(lessonScreen)
@@ -26,6 +37,29 @@ export default class LoadingScreen extends React.Component {
    */
   _checkLogin = async () => {
     return !!(await AsyncStorage.getItem('userToken'))
+  }
+
+  /**
+   * Check if device/installation is registered for push notifications for the user.
+   * If not, try to register.
+   *
+   * @returns {Promise<boolean>}
+   * @private
+   */
+  _checkRegisterForPushNotifications = async () => {
+    if(await PushNotificationsService.isDeviceRegistered()) {
+      return true
+    }
+
+    try {
+      await PushNotificationsService.registerDevice()
+    } catch (error) {
+      Alert.alert("Ups...", error.message)
+      return false
+    }
+
+    console.log("[LoadingScreen] Device now registered for push notifications.")
+    return true
   }
 
   /**
