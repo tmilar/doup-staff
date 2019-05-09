@@ -13,20 +13,20 @@ router.get('/me', isAuthorized, asyncHandler(async (req, res) => {
 
 router.post('/token', isAuthorized, asyncHandler(async (req, res) => {
   const {user, body: {pushToken, device: {os, name}}} = req
-  const newDevice = {exponentPushToken: pushToken, os, name}
+  const newDeviceInfo = {exponentPushToken: pushToken, os, name}
 
+  // check if the device is different from the current one
   const areDevicesEqual = (device1, device2) => {
     return device1.os === device2.os
       && device1.name === device2.name
   }
 
-  // check if the device is different from the current one
   const {deviceInfo: currentDevice} = user
-  const isDifferentDevice = currentDevice && !areDevicesEqual(currentDevice, newDevice);
+  const isDifferentDevice = currentDevice && !areDevicesEqual(currentDevice, newDeviceInfo);
 
   if(isDifferentDevice) {
     const deviceToString = ({os, name}) => JSON.stringify({os, name})
-    logger.info(`New device ${deviceToString(newDevice)} is different from the current one: ${deviceToString(currentDevice)}`)
+    logger.info(`New device ${deviceToString(newDeviceInfo)} is different from the current one: ${deviceToString(currentDevice)}`)
 
     // move the current device to 'otherDevices'.
     const {otherDevices = []} = user
@@ -37,11 +37,13 @@ router.post('/token', isAuthorized, asyncHandler(async (req, res) => {
     }
   }
 
-  if(newDevice.exponentPushToken !== currentDevice.exponentPushToken) {
+  if(newDeviceInfo.exponentPushToken !== currentDevice.exponentPushToken) {
     logger.info('Updating exponent push token and device info.')
     // override the current deviceInfo
-    user.deviceInfo = newDevice
+    user.deviceInfo = newDeviceInfo
     await user.save()
+  } else {
+    logger.info('Exponent push token is already registered.')
   }
 
   res.sendStatus(200)
