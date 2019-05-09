@@ -1,10 +1,10 @@
 import React, {Component} from 'react'
-import {Text, View, StyleSheet, Button, Alert, TextInput, Keyboard, Image, AsyncStorage} from 'react-native'
+import {Alert, AsyncStorage, Button, Image, Keyboard, StyleSheet, Text, TextInput, View} from 'react-native'
+import {hideLoading, showLoading} from 'react-native-notifyer';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 import client from '../service/RequestClient'
-
-import {showLoading, hideLoading} from 'react-native-notifyer';
-import KeyboardSpacer from 'react-native-keyboard-spacer';
+import PushNotificationsService from "../service/PushNotificationsService";
 
 const pkg = require('../package.json');
 
@@ -44,6 +44,17 @@ export default class LoginScreen extends Component {
     return client.sendRequest(resource)
   }
 
+  _registerDeviceForPushNotifications = async () => {
+    if (!await PushNotificationsService.isDeviceRegistered()) {
+      console.log("[LoginScreen] Registering device for push notifications...")
+      await PushNotificationsService.registerDevice()
+      console.log("[LoginScreen] Device registered for push notifications.")
+      return
+    }
+
+    console.log("[LoginScreen] Device was already registered for push notifications.")
+  }
+
   _signInAsync = async () => {
     try {
       const {token} = await this._loginRequest()
@@ -68,6 +79,7 @@ export default class LoginScreen extends Component {
 
     await this._signInAsync()
     await this._fetchUserProfile()
+    await this._registerDeviceForPushNotifications()
   }
 
   _handleLoginButtonPress = async () => {
