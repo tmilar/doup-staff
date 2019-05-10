@@ -22,7 +22,8 @@ router.post('/token', isAuthorized, asyncHandler(async (req, res) => {
   }
 
   const {deviceInfo: currentDevice} = user
-  const isDifferentDevice = currentDevice && !areDevicesEqual(currentDevice, newDeviceInfo)
+  const hasCurrentDevice = currentDevice.os && currentDevice.name
+  const isDifferentDevice = hasCurrentDevice  && !areDevicesEqual(currentDevice, newDeviceInfo)
 
   if (isDifferentDevice) {
     const deviceToString = ({os, name}) => JSON.stringify({os, name})
