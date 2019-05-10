@@ -11,11 +11,11 @@ class LessonService {
   LESSON_TIME_TOLERANCE = {
     START: {
       MIN: moment.duration(-10, 'minutes'),
-      MAX: moment.duration(20, 'minutes')
+      MAX: moment.duration(15, 'minutes')
     },
     END: {
-      MIN: moment.duration(-10, 'minutes'),
-      MAX: moment.duration(15, 'minutes')
+      MIN: moment.duration(-5, 'minutes'),
+      MAX: moment.duration(10, 'minutes')
     }
   }
 

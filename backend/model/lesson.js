@@ -16,11 +16,11 @@ LessonsSchema.index({instructor: 1, startDate: 1, endDate: 1, site: 1, disciplin
 const LESSON_TIME_TOLERANCE = {
   START: {
     MIN: moment.duration(-10, 'minutes'),
-    MAX: moment.duration(20, 'minutes')
+    MAX: moment.duration(15, 'minutes')
   },
   END: {
-    MIN: moment.duration(-10, 'minutes'),
-    MAX: moment.duration(15, 'minutes')
+    MIN: moment.duration(-5, 'minutes'),
+    MAX: moment.duration(10, 'minutes')
   }
 }
 
