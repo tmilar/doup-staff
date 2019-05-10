@@ -88,7 +88,7 @@ class PushNotificationsService {
       const {status} = await Permissions.askAsync(Permissions.NOTIFICATIONS);
       finalStatus = status;
     }
-    return finalStatus !== 'granted';
+    return finalStatus === 'granted';
   }
 }
 
