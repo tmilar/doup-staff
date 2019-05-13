@@ -5,7 +5,8 @@ const config = {
     parentFolder: process.env.DRIVE_PARENT_FOLDER
   },
   gmail: {
-    senderAccount: process.env.GMAIL_SENDER_ACCOUNT
+    senderAccount: process.env.GMAIL_SENDER_ACCOUNT,
+    sendAs: process.env.GMAIL_SEND_AS
   }
 }
 

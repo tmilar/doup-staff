@@ -7,7 +7,7 @@ const base64 = require('base64-url')
 const key = require('../secret/doup-staff-6a4c3ef6c6e3.json')
 
 const gmail = google.gmail({version: 'v1'})
-const {gmail: {senderAccount}} = require('../config')
+const {gmail: {senderAccount, sendAs}} = require('../config')
 const logger = require('../config/logger')
 
 // TODO extract this config logic to 'config' or 'client/'
@@ -16,22 +16,24 @@ const jwtClient = new google.auth.JWT(
   null,
   key.private_key,
   ['https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.labels'],
-  senderAccount
+  senderAccount // Should match the impersonated account
 )
 
-async function sendMail({to, subject, body}) {
+async function sendMail({to, subject, body, sendAs = sendAs}) {
   await jwtClient.authorize()
 
   if (!to || !subject || !body) {
     throw new Error('can\'t send mail unless defining \'to\', \'subject\', and msg \'body\'')
   }
 
+  const from = sendAs ? `${sendAs} <${senderAccount}>` : `${senderAccount}`
+
   const msg = [
     'Content-Type: text/plain; charset=utf-8',
     'MIME-Version: 1.0',
     'Content-Transfer-Encoding: 7bit',
     `To: ${to}`,
-    `From: ${senderAccount}`, // Better match the impersonated account
+    `From: ${from}`,
     `Subject: ${subject}\n`,
     `${body}`
   ].join('\n')

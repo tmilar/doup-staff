@@ -18,6 +18,7 @@ AUTH_TOKEN_SECRET='a random phrase for auth tokens generation'
 GOOGLE_APPLICATION_CREDENTIALS=\path\to\google-account-keys.json
 DRIVE_PARENT_FOLDER='id of the gdrive folder where to put the files'
 GMAIL_SENDER_ACCOUNT='g suite mail sending account'
+GMAIL_SEND_AS='alias to use in 'send as' field'
 ```
 3. Run:
 ```
