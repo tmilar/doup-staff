@@ -116,6 +116,15 @@ async function saveLessons(lessonRows, startDate, endDate) {
 }
 
 module.exports = {
-  fetch: () => fetchRows(lessonsSpreadsheetUrl),
+  fetch: async () => {
+    console.log(`Fetching lessons from URL ${lessonsSpreadsheetUrl}`)
+    const data = await fetchRows(lessonsSpreadsheetUrl)
+    if (!data) {
+      console.error('Problem processing Lessons from Spreadsheet.')
+      return
+    }
+    console.log(`Successfully processed ${data.length} Lesson rows from Spreadsheet.`)
+    return data
+  },
   save: saveLessons
 }

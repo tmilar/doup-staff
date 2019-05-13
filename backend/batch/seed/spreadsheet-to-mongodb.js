@@ -62,8 +62,8 @@ const lessonsMerger = require('./mergers/lessons')
 const reportResults = require('./util/report-results')
 
 async function dbConnect() {
-  const {connection: {name}} = await db.connect()
-  console.log(`db connection open: ${name}`)
+  const {connection: {name, host, port}} = await db.connect()
+  console.log(`db connection open: ${host}:${port}/${name}`)
 }
 
 function mergeAndReport(merger, rows, ...options) {
@@ -97,7 +97,7 @@ Promise
     process.exitCode = 0
   })
   .catch(async error => {
-    console.error(error)
+    console.error("Error...", error)
     await db.disconnect()
     process.exitCode = 1
   })

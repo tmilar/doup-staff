@@ -56,6 +56,14 @@ async function saveUsers(userRows) {
 }
 
 module.exports = {
-  fetch: () => fetchRows(usersSpreadsheetUrl),
+  fetch: async () => {
+    console.log(`Fetching users from URL ${usersSpreadsheetUrl}`)
+    const data = await fetchRows(usersSpreadsheetUrl)
+    if (data) {
+      console.log(`Successfully processed ${data.length} User rows from Spreadsheet.`)
+      return data
+    }
+    console.error('Problem processing Users from Spreadsheet.')
+  },
   save: saveUsers
 }

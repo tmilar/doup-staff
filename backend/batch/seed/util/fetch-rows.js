@@ -11,7 +11,6 @@ module.exports = function fetchRows(spreadsheetUrl) {
           return reject(new Error('Could not process data'))
         }
 
-        console.log(`Successfully processed ${data.length} rows from Spreadsheet.`)
         resolve(data)
       }
     })
