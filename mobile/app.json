@@ -23,6 +23,9 @@
         "mp4"
       ]
     },
+    "android": {
+      "package": "com.doup.doupstaff"
+    },
     "ios": {
       "supportsTablet": true
     },
