@@ -48,7 +48,8 @@ async function lessonRowMapper(row, weekNumber, weekYear) {
     actividad: discipline,
     espacio: site,
     nombre: firstName,
-    apellido: lastName
+    apellido: lastName,
+    ignore
   } = row
 
   const weekday = dayNamesSpanish.findIndex(dayName => dayName === weekDayString.toLowerCase()) + 1
@@ -57,6 +58,12 @@ async function lessonRowMapper(row, weekNumber, weekYear) {
 
   const startDate = lessonDateBuilder(startTime)
   const endDate = lessonDateBuilder(endTime)
+
+  if (ignore) {
+    const lessonStr = buildLessonString({date: startDate, weekDayString, startTime, endTime, discipline, site})
+    console.log(`Ignored lesson: '${lessonStr}'`)
+    return null
+  }
 
   const instructor = await User.findOne({firstName, lastName})
 
