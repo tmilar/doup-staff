@@ -137,15 +137,15 @@ export default class CurrentLessonScreen extends React.Component {
       const {MIN: endMin, MAX: endMax} = LessonService.LESSON_TIME_TOLERANCE.END
       const endMinStr = endMin.humanize()
       const endMaxStr = endMax.humanize()
-      infoMsg = `Tu clase actual podrá ser finalizada sólo en el rango de ${endMinStr} antes a ${endMaxStr} después del horario de fin.`
+      infoMsg = `Tu clase actual podrá ser finalizada sólo en el rango de ${endMinStr} antes a ${endMaxStr} después del horario de fin de la misma.`
     }
 
     Alert.alert('Info', infoMsg)
   }
 
   _turnEndButton = () => {
-    const {canFinishCurrentlesson} = this.state
-    const isDisabled = !canFinishCurrentlesson;
+    const {canFinishCurrentLesson} = this.state
+    const isDisabled = !canFinishCurrentLesson;
 
     let actionButtonViewStyle = styles.actionButtonView
     if (isDisabled) {
