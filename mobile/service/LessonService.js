@@ -1,4 +1,5 @@
 import {AsyncStorage} from "react-native";
+import {Notifications} from 'expo'
 import moment from 'moment'
 import 'moment/locale/es'
 import 'moment-timezone'
@@ -49,6 +50,9 @@ class LessonService {
     // update stored lesson
     await AsyncStorage.setItem('nextLesson', JSON.stringify(startedLesson))
 
+    // cancel scheduled notifications
+    await this.cancelLessonStartReminders();
+
     return startedLesson
   }
 
@@ -60,7 +64,36 @@ class LessonService {
     // update stored lesson
     await AsyncStorage.setItem('nextLesson', JSON.stringify(finishedLesson))
 
+    // cancel scheduled notifications
+    await this.cancelLessonEndReminders()
+
     return finishedLesson
+  }
+
+  cancelLessonStartReminders = async () => {
+    const key = 'startNotificationIds';
+    await this._cancelScheduledNotificationsByKey(key);
+  }
+
+  cancelLessonEndReminders = async () => {
+    const key = 'endNotificationIds';
+    await this._cancelScheduledNotificationsByKey(key)
+  }
+
+  _cancelScheduledNotificationsByKey = async key => {
+    const ids = JSON.parse(await AsyncStorage.getItem(key) || "[]")
+    if (!ids || !ids.length) {
+      console.log(`[LessonService] no scheduled notifications found for key '${key}', can't cancel. `)
+      return
+    }
+
+    console.log(`[LessonService] cancelling scheduled notifications '${key}' ids ${ids}`)
+    await this._cancelScheduledNotifications(ids)
+    await AsyncStorage.removeItem(key)
+  }
+
+  _cancelScheduledNotifications = async ids => {
+    return Promise.all(ids.map(Notifications.cancelScheduledNotificationAsync))
   }
 
   /**
@@ -139,6 +172,12 @@ class LessonService {
       }
       console.log(logMsg)
     }
+
+    // schedule start & end local reminders
+    if (nextLesson) {
+      await this.scheduleLessonReminders(nextLesson);
+    }
+
     return nextLesson;
   }
 
@@ -150,6 +189,54 @@ class LessonService {
    */
   _fetchNextLesson = async () => {
     return client.sendRequest('/lesson/next');
+  }
+
+  scheduleLessonReminders = async nextLesson => {
+    const {
+      startNotificationIds,
+      endNotificationIds
+    } = await this._scheduleLessonNotificationReminders(nextLesson)
+    await AsyncStorage.setItem('startNotificationIds', JSON.stringify(startNotificationIds))
+    await AsyncStorage.setItem('endNotificationIds', JSON.stringify(endNotificationIds))
+    console.log(`[LessonService] scheduled startNotificationIds ${startNotificationIds} and endNotificationIds ${endNotificationIds}`)
+  }
+
+  startReminderNotifications = [{
+    title: "Tu próximo Turno",
+    body: "No te olvides de comenzar tu turno",
+    time: ({startDate}) => new Date(startDate).getTime() - (1000 * 60 * 8)
+  }, {
+    title: "Tu Turno está comenzando",
+    body: "Por favor, ¡no olvides confirmar el Comienzo de tu turno!",
+    time: ({startDate}) => new Date(startDate).getTime() - (1000 * 60 * 1)
+  }]
+
+  endReminderNotifications = [{
+    title: "Finalizar Clase",
+    body: "Toca aquí para finalizar tu clase.",
+    time: ({endDate}) => new Date(endDate).getTime() - (1000 * 60 * 1)
+  }, {
+    title: "Finalizar Clase",
+    body: "Por favor, finaliza tu clase ahora. ¡Última oportunidad!",
+    time: ({endDate}) => new Date(endDate).getTime() + (1000 * 60 * 7)
+  }]
+
+  _scheduleLessonNotificationReminders = async (nextLesson) => {
+    const mapSchedule = notifications =>
+      notifications.map(({title, body, time}) =>
+        Notifications.scheduleLocalNotificationAsync(
+          {title, body},
+          {time: time(nextLesson)}
+        )
+      );
+
+    const startNotificationIds = await Promise.all(mapSchedule(this.startReminderNotifications))
+    const endNotificationIds = await Promise.all(mapSchedule(this.endReminderNotifications))
+
+    return {
+      startNotificationIds,
+      endNotificationIds
+    }
   }
 }
 
