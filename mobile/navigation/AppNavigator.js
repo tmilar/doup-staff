@@ -2,7 +2,7 @@ import React from 'react';
 import {AsyncStorage, Image} from 'react-native';
 import {createAppContainer, createStackNavigator, createSwitchNavigator} from 'react-navigation';
 
-import {Icon} from 'expo';
+import {Icon, Notifications} from 'expo';
 import LoadingScreen from '../screens/LoadingScreen';
 import LoginScreen from '../screens/LoginScreen';
 import UploadScreen from '../screens/UploadScreen';
@@ -16,6 +16,7 @@ const AuthStack = createStackNavigator({
 
 async function _signOutAsync(navigation) {
   await AsyncStorage.clear();
+  await Notifications.cancelAllScheduledNotificationsAsync()
   navigation.navigate('Auth');
 }
 
