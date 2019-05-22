@@ -2,9 +2,9 @@
   "name": "doup-staff-seed-db",
   "version": "1.0.0",
   "description": "Batch script to seed data into a Mongo DB from a Google Spreadsheet.",
-  "main": "spreadsheet-to-mongodb.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node spreadsheet-to-mongodb.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "tmilar",
