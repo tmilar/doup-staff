@@ -1,10 +1,6 @@
-const lessonsSpreadsheetUrl = process.env.LESSONS_SPREADSHEET
-if (!lessonsSpreadsheetUrl || lessonsSpreadsheetUrl.length === 0) {
-  throw new Error('The spreadsheet url must be set in env variable USERS_SPREADSHEET.')
-}
-
 const Promise = require('bluebird')
 const {DateTime, Settings, Interval} = require('luxon')
+const {spreadsheet: {lessons: lessonsSpreadsheetUrl}} = require('../config')
 
 Settings.defaultZoneName = 'America/Argentina/Buenos_Aires'
 

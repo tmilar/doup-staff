@@ -1,12 +1,8 @@
-const usersSpreadsheetUrl = process.env.USERS_SPREADSHEET
-if (!usersSpreadsheetUrl || usersSpreadsheetUrl.length === 0) {
-  throw new Error('The spreadsheet url must be set in env variable USERS_SPREADSHEET.')
-}
-
 const Promise = require('bluebird')
 const User = require('../../../model/user')
 const fetchRows = require('../util/fetch-rows')
 const trimStringValues = require('../util/trim-string-values')
+const {spreadsheet: {users: usersSpreadsheetUrl}} = require('../config')
 
 function _generateDefaultPassword(firstName) {
   const suffix = '123'
