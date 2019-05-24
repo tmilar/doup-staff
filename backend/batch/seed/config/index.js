@@ -1,4 +1,7 @@
 const {_: selectedActions} = require('yargs')
+const {Settings} = require('luxon')
+
+Settings.defaultZoneName = 'America/Argentina/Buenos_Aires'
 
 const {
   MONGODB_URL: dbUrl,

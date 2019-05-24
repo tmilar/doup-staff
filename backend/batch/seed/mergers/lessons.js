@@ -1,8 +1,6 @@
 const Promise = require('bluebird')
-const {DateTime, Settings, Interval} = require('luxon')
+const {DateTime, Interval} = require('luxon')
 const {spreadsheet: {lessons: lessonsSpreadsheetUrl}} = require('../config')
-
-Settings.defaultZoneName = 'America/Argentina/Buenos_Aires'
 
 const Lesson = require('../../../model/lesson')
 const User = require('../../../model/user')
