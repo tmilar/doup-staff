@@ -1,6 +1,12 @@
 const path = require('path')
 require('dotenv').config({path: path.resolve(__dirname, '.env')})
 
+const {luxon: {DateTime}} = require('./config')
+
+const inputDateParamsFormat = 'yyyy-MM-dd'
+const exampleStartDateParam = DateTime.local().startOf('month').startOf('week').toFormat(inputDateParamsFormat)
+const exampleEndDateParam = DateTime.local().endOf('month').endOf('week').toFormat(inputDateParamsFormat)
+
 const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yargs')
   .usage('Usage: $0 [options]')
   .demandCommand(1)
@@ -8,16 +14,16 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
   .command('lessons', 'Merge lessons from spreadsheet to DB.', yargs => {
     yargs
       .option('start', {
-        description: 'Lessons load start date (format: \'yyyy-mm-dd\')'
+        description: `Lessons load start date (format: '${inputDateParamsFormat}'), inclusive.`
       })
       .option('end', {
-        description: 'Lessons load end date (format: \'yyyy-mm-dd\')'
+        description: `Lessons load end date (format: '${inputDateParamsFormat}'), inclusive.`
       })
-      .demand(['start', 'end'], 'Must provide \'start\' and \'end\' date params.')
+      .demand(['start', 'end'], `Must include --'start' and --'end' date params, in '${inputDateParamsFormat}' format.`)
   })
   .example('$0 users', 'Save users only')
-  .example('$0 lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save lessons only, in the defined time range')
-  .example('$0 users lessons --start=\'2019-12-01\' --end=\'2019-12-31\'', 'Save users and lessons (in the defined time range)')
+  .example(`$0 lessons --start='${exampleStartDateParam}' --end='${exampleEndDateParam}'`, 'Save lessons only (in the specified time range)')
+  .example(`$0 users lessons --start='${exampleStartDateParam}' --end='${exampleEndDateParam}'`, 'Save users and lessons (in the specified time range)')
   .coerce('start', dateStr => {
     const date = new Date(`${dateStr} GMT-0300`) // Lock to Buenos Aires timezone
     if (!date) {

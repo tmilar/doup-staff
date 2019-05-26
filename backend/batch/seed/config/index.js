@@ -1,7 +1,7 @@
 const {_: selectedActions} = require('yargs')
-const {Settings} = require('luxon')
+const luxon = require('luxon')
 
-Settings.defaultZoneName = 'America/Argentina/Buenos_Aires'
+luxon.Settings.defaultZoneName = 'America/Argentina/Buenos_Aires'
 
 const {
   MONGODB_URL: dbUrl,
@@ -28,7 +28,8 @@ const config = {
   spreadsheet: {
     users: usersSpreadsheetUrl,
     lessons: lessonsSpreadhseetUrl
-  }
+  },
+  luxon
 }
 
 module.exports = config
