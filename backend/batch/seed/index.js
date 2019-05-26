@@ -25,20 +25,20 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
   .example(`$0 lessons --start='${exampleStartDateParam}' --end='${exampleEndDateParam}'`, 'Save lessons only (in the specified time range)')
   .example(`$0 users lessons --start='${exampleStartDateParam}' --end='${exampleEndDateParam}'`, 'Save users and lessons (in the specified time range)')
   .coerce('start', dateStr => {
-    const date = new Date(`${dateStr} GMT-0300`) // Lock to Buenos Aires timezone
-    if (!date) {
-      throw new Error(`Bad start date value: '${dateStr}'`)
+    const startDate = DateTime.fromFormat(dateStr, inputDateParamsFormat).toJSDate().getDate()
+    if (!startDate) {
+      throw new Error(`Bad start date param: '${dateStr}'`)
     }
 
-    return date
+    return startDate
   })
   .coerce('end', dateStr => {
-    const date = new Date(`${dateStr} 23:59:00 GMT-0300`) // Buneos Aires timezone + end of day
-    if (!date) {
-      throw new Error(`Bad end date value: '${dateStr}'`)
+    const endDate = DateTime.fromFormat(dateStr, inputDateParamsFormat).endOf('day').toJSDate().getDate()
+    if (!endDate) {
+      throw new Error(`Bad end date param: '${dateStr}'`)
     }
 
-    return date
+    return endDate
   })
   .check(({start, end}) => {
     if (start && !end) {
@@ -50,7 +50,7 @@ const {_: selectedActions, start: lessonsStart, end: lessonsEnd} = require('yarg
     }
 
     if (start && end && start > end) {
-      throw new Error('Error: \'start\' date must be earlier than \'end\' date!')
+      throw new Error('Error: \'start\' date can\'t be after \'end\' date!')
     }
 
     return true
